@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <Button
+        android:layout_marginTop="50dp"
+        android:id="@+id/button_hrm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="심박수 감지 모드"
+        android:onClick="OnClick"/>
+
+    <Button
+        android:layout_marginTop="50dp"
+        android:id="@+id/button_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="정보 수정"
+        android:onClick="OnClick"/>
+
+    <Button
+        android:layout_marginTop="50dp"
+        android:id="@+id/button_call"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="긴급 연락"
+        android:onClick="OnClick"/>
+
+    <Button
+        android:layout_marginTop="50dp"
+        android:id="@+id/button_exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="앱 종료"
+        android:onClick="OnClick"/>
+
+
+</LinearLayout>
