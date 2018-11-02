@@ -19,9 +19,7 @@ public class ConnectionService extends SAAgent {
     private ServiceConnection mConnectionHandler = null;
     Handler mHandler = new Handler();
 
-    public ConnectionService() {
-        super(TAG, SASOCKET_CLASS);
-    }
+    public ConnectionService() { super(TAG, SASOCKET_CLASS); }
 
     @Override
     public void onCreate() {

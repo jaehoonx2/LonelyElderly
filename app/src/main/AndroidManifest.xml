@@ -48,7 +48,8 @@
             android:name="GearAppType"
             android:value="tpk" />
 
-        <activity android:name=".HRMActivity"></activity>
+        <activity android:name=".HRMActivity" />
+        <activity android:name=".InfoActivity"></activity>
     </application>
 
 </manifest>

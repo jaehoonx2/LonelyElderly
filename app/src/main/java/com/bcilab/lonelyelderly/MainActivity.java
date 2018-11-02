@@ -6,37 +6,43 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_HRM = 101;
     public static final int REQUEST_CODE_INFO = 102;
-//    public static final int REQUEST_CODE_CALL = 103;
-//    public static final int REQUEST_CODE_EXIT = 104;
+    public static Uri uri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        uri = Uri.EMPTY;
     }
 
     public void OnClick(View v){
         switch (v.getId()){
             case R.id.button_hrm : {
-               Intent intent = new Intent(getApplicationContext(), HRMActivity.class);
-               startActivityForResult(intent, REQUEST_CODE_HRM);
-               break;
+                Intent intent = new Intent(getApplicationContext(), HRMActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_HRM);
+                break;
             }
             case R.id.button_info : {
-//                Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
-//                startActivityForResult(intent, REQUEST_CODE_INFO);
+                Intent intent = new Intent(getApplicationContext(), InfoActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_INFO);
                 break;
             }
             case R.id.button_call : {
                 Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:01065775125"));
-                try{
+                if (uri != null && !uri.equals(Uri.EMPTY)) {
+                    intent.setData(uri);
+                } else {
+                    Toast.makeText(getApplicationContext(), "긴급 연락처를 저장하십시오", Toast.LENGTH_SHORT).show();
+                }
+
+                try {
                     startActivity(intent);
-                } catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
@@ -51,15 +57,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
 
-        if (requestCode == REQUEST_CODE_HRM){
-            // Response from HRMActivity
+        switch (requestCode){
+            case REQUEST_CODE_HRM :
+                break;
+            case REQUEST_CODE_INFO :
+                uri = intent.getParcelableExtra("uri_phoneNum");
+                break;
+            default :
         }
 
         if(resultCode == RESULT_OK){
-            // Normal response from HRMActivity
+            // Normal response from Activities
         }
     }
 }
