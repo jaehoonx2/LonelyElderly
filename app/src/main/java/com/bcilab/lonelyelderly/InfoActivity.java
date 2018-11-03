@@ -30,7 +30,6 @@ public class InfoActivity extends AppCompatActivity {
             case R.id.button_back : {
                 Intent intent = new Intent();
                 intent.putExtra("uri_phoneNum", uri_phoneNum);
-                Toast.makeText(getApplicationContext(), "연락처를 입력하시오", Toast.LENGTH_SHORT).show();
                 setResult(RESULT_OK, intent);
                 finish();
                 break;

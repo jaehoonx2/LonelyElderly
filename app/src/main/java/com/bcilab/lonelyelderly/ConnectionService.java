@@ -18,6 +18,7 @@ public class ConnectionService extends SAAgent {
     private final IBinder mBinder = new LocalBinder();
     private ServiceConnection mConnectionHandler = null;
     Handler mHandler = new Handler();
+    Handler hrHandler = new Handler();
 
     public ConnectionService() { super(TAG, SASOCKET_CLASS); }
 
@@ -127,6 +128,7 @@ public class ConnectionService extends SAAgent {
                 received_data[i] = String.valueOf(data[i]);
                 Log.i(TAG, "received data["+ i +"] = " + received_data[i]);
                 updateHR(received_data[i]);
+                Log.e(TAG, "Error occurred while updating HR");
             }
         }
 
@@ -189,7 +191,7 @@ public class ConnectionService extends SAAgent {
     }
 
     private void updateHR(final String data) {
-        mHandler.post(new Runnable() {
+        hrHandler.post(new Runnable() {
             @Override
             public void run() {
                 HRMActivity.updateHR(data);

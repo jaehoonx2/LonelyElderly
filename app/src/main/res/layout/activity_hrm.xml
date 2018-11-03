@@ -4,46 +4,56 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".HRMActivity" >
+
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:textColor="@android:color/transparent"
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:drawableTop="@drawable/heartbeat"
+        android:text="현재 심박수 (BPM)"
+        android:textSize="30dp"/>
     <TextView
         android:id="@+id/heartBPM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
+        android:layout_margin="10dp"
         android:layout_weight="1"
-        android:drawablePadding="2dp"
-        android:textSize="30dp"
-        android:text="BPM"/>
+        android:text="0"
+        android:textSize="50dp"/>
     <Button
         android:id="@+id/buttonConnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
-        android:text="@string/buttonConnect"
-        android:textSize="24sp"
+        android:text="측정 시작"
+        android:textSize="25dp"
         android:textStyle="bold" />
     <Button
         android:id="@+id/buttonDisconnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
-        android:text="@string/buttonDisconnect"
-        android:textSize="24sp"
+        android:text="측정 중지"
+        android:textSize="25dp"
         android:textStyle="bold" />
     <Button
         android:id="@+id/buttonBack"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
-        android:text="@string/buttonBack"
-        android:textSize="24sp"
+        android:text="뒤로"
+        android:textSize="25dp"
         android:textStyle="bold" />
 </LinearLayout>
