@@ -10,10 +10,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:textSize="20dp"
-        android:text="긴급 연락처"/>
+        android:text="긴급 연락처"
+        android:textSize="25dp"
+        />
 
     <LinearLayout
+        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -23,23 +25,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:inputType="phone"
             android:hint="보호자 연락처를 적어주세요"
-            android:inputType="phone" />
+            android:textSize="25dp"
+            />
 
         <Button
             android:id="@+id/button_save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="저장"
             android:layout_weight="1"
+            android:text="저장"
+            android:textSize="25dp"
             android:onClick="OnClick"/>
     </LinearLayout>
 
     <Button
+        android:layout_marginTop="20dp"
         android:id="@+id/button_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="뒤로"
+        android:textSize="25dp"
         android:onClick="OnClick"/>
 </LinearLayout>

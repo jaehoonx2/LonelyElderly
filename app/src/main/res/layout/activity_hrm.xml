@@ -39,7 +39,7 @@
         android:onClick="mOnClick"
         android:text="측정 시작"
         android:textSize="25dp"
-        android:textStyle="bold" />
+        />
     <Button
         android:id="@+id/buttonDisconnect"
         android:layout_width="fill_parent"
@@ -47,7 +47,7 @@
         android:onClick="mOnClick"
         android:text="측정 중지"
         android:textSize="25dp"
-        android:textStyle="bold" />
+        />
     <Button
         android:id="@+id/buttonBack"
         android:layout_width="fill_parent"
@@ -55,5 +55,5 @@
         android:onClick="mOnClick"
         android:text="뒤로"
         android:textSize="25dp"
-        android:textStyle="bold" />
+        />
 </LinearLayout>
