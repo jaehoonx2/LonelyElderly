@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 try {
+                    Toast.makeText(getApplicationContext(), "긴급 연락 기능 작동! 보호자에게 전화를 발신합니다.", Toast.LENGTH_LONG).show();
                     startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -71,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(resultCode == RESULT_OK){
             // Normal response from Activities
+            if(requestCode == REQUEST_CODE_HRM)
+                Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
+            else if (requestCode == REQUEST_CODE_INFO)
+                Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
         }
     }
 }

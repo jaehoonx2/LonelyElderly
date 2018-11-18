@@ -1,6 +1,7 @@
 package com.bcilab.lonelyelderly;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,8 +18,8 @@ public class ConnectionService extends SAAgent {
     private static final Class<ServiceConnection> SASOCKET_CLASS = ServiceConnection.class;
     private final IBinder mBinder = new LocalBinder();
     private ServiceConnection mConnectionHandler = null;
-    Handler mHandler = new Handler();
-    Handler hrHandler = new Handler();
+    Handler statusHandler = new Handler();
+    Handler HRHandler = new Handler();
 
     public ConnectionService() { super(TAG, SASOCKET_CLASS); }
 
@@ -38,7 +39,7 @@ public class ConnectionService extends SAAgent {
             /*
              * Your application can not use Samsung Accessory SDK. Your application should work smoothly
              * without using this SDK, or you may want to notify user and close your application gracefully
-             * (release resources, stop Service threads, close UI thread, etc.)
+             * (release resources, stop Service threads, close UI th, etc.)
              */
             stopSelf();
         }
@@ -56,10 +57,10 @@ public class ConnectionService extends SAAgent {
                 requestServiceConnection(peerAgent);
         } else if (result == SAAgent.FINDPEER_DEVICE_NOT_CONNECTED) {
             Toast.makeText(getApplicationContext(), "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
-            updateTextView("Disconnected");
+            updateStatus("Disconnected");
         } else if (result == SAAgent.FINDPEER_SERVICE_NOT_FOUND) {
             Toast.makeText(getApplicationContext(), "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
-            updateTextView("Disconnected");
+            updateStatus("Disconnected");
         } else {
             Toast.makeText(getApplicationContext(), R.string.NoPeersFound, Toast.LENGTH_LONG).show();
         }
@@ -76,9 +77,9 @@ public class ConnectionService extends SAAgent {
     protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
         if (result == SAAgent.CONNECTION_SUCCESS) {
             this.mConnectionHandler = (ServiceConnection) socket;
-            updateTextView("Connected");
+            updateStatus("Connected");
         } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
-            updateTextView("Connected");
+            updateStatus("Connected");
             Toast.makeText(getBaseContext(), "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_DUPLICATE_REQUEST) {
             Toast.makeText(getBaseContext(), "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
@@ -96,7 +97,7 @@ public class ConnectionService extends SAAgent {
     protected void onPeerAgentsUpdated(SAPeerAgent[] peerAgents, int result) {
         final SAPeerAgent[] peers = peerAgents;
         final int status = result;
-        mHandler.post(new Runnable() {
+        statusHandler.post(new Runnable() {
             @Override
             public void run() {
                 if (peers != null) {
@@ -121,20 +122,27 @@ public class ConnectionService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-
-            final String[] received_data = new String[data.length];
-
-            for(int i = 0; i < data.length; i++){
-                received_data[i] = String.valueOf(data[i]);
-                Log.i(TAG, "received data["+ i +"] = " + received_data[i]);
-                updateHR(received_data[i]);
-                Log.e(TAG, "Error occurred while updating HR");
-            }
+            final String received_data = String.valueOf(data[0]);
+            Log.i(TAG, "received data = " + received_data);
+            updateHeartBPM(received_data);
+//            final String[] received_data = new String[data.length];
+//
+//            for(int i = 0; i < data.length; i++){
+//                received_data[i] = String.valueOf(data[i]);
+//                Log.i(TAG, "received data["+ i +"] = " + received_data[i]);
+////                updateHeartBPM(received_data[i]);
+//
+////                Log.e(TAG, "Error occurred while updating HR");
+//
+//                if(i == data.length - 1){
+//                    updateHeartBPM(received_data[i]);
+//                }
+//            }
         }
 
         @Override
         protected void onServiceConnectionLost(int reason) {
-            updateTextView("Disconnected");
+            updateStatus("Disconnected");
             closeConnection();
         }
     }
@@ -167,7 +175,7 @@ public class ConnectionService extends SAAgent {
             /*
              * Your application can not use Samsung Accessory SDK. You application should work smoothly
              * without using this SDK, or you may want to notify user and close your app gracefully (release
-             * resources, stop Service threads, close UI thread, etc.)
+             * resources, stop Service threads, close UI th, etc.)
              */
             stopSelf();
         } else if (errType == SsdkUnsupportedException.LIBRARY_NOT_INSTALLED) {
@@ -181,20 +189,20 @@ public class ConnectionService extends SAAgent {
         return true;
     }
 
-    private void updateTextView(final String str) {
-        mHandler.post(new Runnable() {
+    private void updateStatus(final String str) {
+        statusHandler.post(new Runnable() {
             @Override
             public void run() {
-                HRMActivity.updateTextView(str);
+                HRMActivity.updateStatus(str);
             }
         });
     }
 
-    private void updateHR(final String data) {
-        hrHandler.post(new Runnable() {
+    private void updateHeartBPM(final String data) {
+        HRHandler.post(new Runnable() {
             @Override
             public void run() {
-                HRMActivity.updateHR(data);
+                HRMActivity.updateHeartBPM(data);
             }
         });
     }
