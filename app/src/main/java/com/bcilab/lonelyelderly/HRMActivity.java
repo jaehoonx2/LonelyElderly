@@ -25,7 +25,7 @@ public class HRMActivity extends AppCompatActivity {
 
     DetectHandler detectHandler;
     static DetectThread detectThread;
-    static boolean isRunning = false;
+    static boolean isFirstZero = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,14 +156,13 @@ public class HRMActivity extends AppCompatActivity {
     public static void updateHeartBPM(final String str) {
         heartBPM.setText(str);
 
-        if(Integer.parseInt(str) == 0 && !isRunning){
-            isRunning = true;
+        if(Integer.parseInt(str) == 0 && isFirstZero){
+            isFirstZero = false;
             detectThread.start();
         }
     }
 
     class DetectThread extends Thread {
-        int elapsed = 0;
         /* DetectThread
          * 스레드 진행 과정
          * 1. 0이 감지되면 스레드 시작
@@ -172,10 +171,7 @@ public class HRMActivity extends AppCompatActivity {
          */
         @Override
         public void run() {
-           while(true){
-               if(elapsed > 10)
-                   break;
-
+            for(int elapsed = 0; elapsed < 11; elapsed++){
                Message message = detectHandler.obtainMessage();
                Bundle bundle = new Bundle();
                bundle.putInt("elapsed", elapsed);
@@ -185,7 +181,6 @@ public class HRMActivity extends AppCompatActivity {
 
                try {
                    Thread.sleep(1000);
-                   elapsed++;
                } catch (Exception e) {
                    Log.e("DetectThread", "Exception in processing message.", e);
                }
@@ -194,6 +189,7 @@ public class HRMActivity extends AppCompatActivity {
     }
 
     class DetectHandler extends Handler {
+
         // 받은 메시지 처리, 여기서 UI 직접 접근 가능
         @Override
         public void handleMessage(Message msg) {
@@ -201,25 +197,11 @@ public class HRMActivity extends AppCompatActivity {
 
             Bundle bundle = msg.getData();
             int elapsed = bundle.getInt("elapsed");
-            statusText.setText("BPM = 0 감지 후 " + elapsed + " 경과");
+            statusText.setText("BPM = 0 최초 감지 후 " + elapsed + "초 경과");
 
             if (elapsed == 10) {
-                isRunning = false;
                 makeEmergencyDialog();
-
             }
         }
     }
-
-    /*
-     * BPM = 0 값이 들어왔을 때, 기존의 th 죽어있으면 살리기
-     * BPM != 0 값이 들어왔을 때, 기존의 th 살아있으면 죽이기
-     */
-//        if(Integer.parseInt(str) == 0) {
-//            if(!th.isAlive())
-//                th.start();
-//        } else {
-//            if(!th.isInterrupted())
-//                th.interrupt();
-//        }
 }
