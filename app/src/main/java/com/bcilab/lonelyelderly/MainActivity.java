@@ -24,6 +24,14 @@ public class MainActivity extends AppCompatActivity {
         switch (v.getId()){
             case R.id.button_hrm : {
                 Intent intent = new Intent(getApplicationContext(), HRMActivity.class);
+
+                // 심정지 시 긴급연락처 전송 (미지정 시 119)
+                if (uri != null && !uri.equals(Uri.EMPTY)) {
+                    intent.putExtra("uri", uri);
+                } else {
+                    intent.putExtra("uri", "119");
+                }
+
                 startActivityForResult(intent, REQUEST_CODE_HRM);
                 break;
             }
