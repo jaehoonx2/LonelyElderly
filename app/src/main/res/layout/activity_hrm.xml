@@ -14,47 +14,47 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart1"
+        android:layout_width="match_parent"
+        android:layout_height="230dp" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:drawableTop="@drawable/heartbeat"
         android:text="현재 심박수 (BPM)"
-        android:textSize="30dp"/>
+        android:textSize="25dp"/>
 
     <TextView
         android:id="@+id/heartBPM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:layout_weight="1"
         android:gravity="center"
-        android:text="-3"
-        android:textSize="50dp" />
+        android:text="미측정"
+        android:textSize="40dp" />
     <Button
         android:id="@+id/buttonConnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
         android:text="측정 시작"
-        android:textSize="25dp"
-        />
+        android:textSize="25dp" />
     <Button
         android:id="@+id/buttonDisconnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
         android:text="측정 중지"
-        android:textSize="25dp"
-        />
+        android:textSize="25dp" />
+
     <Button
         android:id="@+id/buttonBack"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
         android:text="뒤로"
-        android:textSize="25dp"
-        />
+        android:textSize="25dp" />
 </LinearLayout>

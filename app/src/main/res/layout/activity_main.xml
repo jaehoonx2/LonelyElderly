@@ -24,7 +24,7 @@
             android:id="@+id/button_hrm"
             android:layout_width="160dp"
             android:layout_height="wrap_content"
-            android:drawableTop="@drawable/smartphone"
+            android:drawableTop="@drawable/heart_rate"
             android:onClick="OnClick"
             android:text="심박수 감지"
             android:textSize="25dp" />
