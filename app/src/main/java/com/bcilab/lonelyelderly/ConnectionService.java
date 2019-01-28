@@ -122,22 +122,20 @@ public class ConnectionService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-            final String received_data = String.valueOf(data[0]);
-            Log.i(TAG, "received data = " + received_data);
-            updateHeartBPM(received_data);
-//            final String[] received_data = new String[data.length];
-//
-//            for(int i = 0; i < data.length; i++){
-//                received_data[i] = String.valueOf(data[i]);
-//                Log.i(TAG, "received data["+ i +"] = " + received_data[i]);
-////                updateHeartBPM(received_data[i]);
-//
-////                Log.e(TAG, "Error occurred while updating HR");
-//
-//                if(i == data.length - 1){
-//                    updateHeartBPM(received_data[i]);
-//                }
-//            }
+            final String message =new String(data);
+            String[] sensors = message.split("\\s");
+            Log.i(TAG, "bpm "+ sensors[0] + " " +
+                    "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
+                    + sensors[4] + " " + sensors[5] + " " + sensors[6] + " "
+                    + sensors[7] + " " + sensors[8] + " " + sensors[9] + " "
+                    + sensors[10] + " " + sensors[11] + " " + sensors[12] + " "
+                    + sensors[13] + " " + sensors[14] + " " + sensors[15] + " "
+                    + sensors[16] + " " + sensors[17] + " " + sensors[18] + " "
+                    + sensors[19] + " " + sensors[20] + " " + sensors[21] + " "
+                    + sensors[22] + " " + sensors[23] + " " + sensors[24] + " "
+                    + sensors[25] + " " + sensors[26] + " " + sensors[27] + " "
+                    + sensors[28] + " " + sensors[29] + " " + sensors[30] + " ");
+            updateHeartBPM(sensors[0]);
         }
 
         @Override
