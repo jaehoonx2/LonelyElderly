@@ -69,7 +69,7 @@ public class HRMActivity extends AppCompatActivity {
         mChart.setTouchEnabled(false);
         mChart.setDragEnabled(false);
         mChart.setScaleEnabled(false);
-        mChart.setDrawGridBackground(false);
+        mChart.setDrawGridBackground(true);
         mChart.setPinchZoom(false);
         mChart.setBackgroundColor(Color.WHITE);
 
