@@ -113,7 +113,6 @@ public class HRMActivity extends AppCompatActivity {
         if(graphThread != null){
             graphThread.interrupt();
         }
-
     }
 
     @Override

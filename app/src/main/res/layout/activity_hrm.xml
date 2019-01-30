@@ -40,7 +40,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
-        android:text="측정 시작"
+        android:text="측정 시작, 저장"
         android:textSize="25dp" />
     <Button
         android:id="@+id/buttonDisconnect"

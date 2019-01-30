@@ -1,7 +1,6 @@
 package com.bcilab.lonelyelderly;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -12,6 +11,19 @@ import com.samsung.android.sdk.accessory.SA;
 import com.samsung.android.sdk.accessory.SAAgent;
 import com.samsung.android.sdk.accessory.SAPeerAgent;
 import com.samsung.android.sdk.accessory.SASocket;
+
+import android.os.Environment;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import static java.lang.Integer.parseInt;
 
 public class ConnectionService extends SAAgent {
     private static final String TAG = "LonelyElderly";
@@ -136,6 +148,83 @@ public class ConnectionService extends SAAgent {
                     + sensors[25] + " " + sensors[26] + " " + sensors[27] + " "
                     + sensors[28] + " " + sensors[29] + " " + sensors[30] + " ");
             updateHeartBPM(sensors[0]);
+
+            String a0 = sensors[0];
+            SimpleDateFormat time0 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data0 = time0.format(new Date()); //timestamp
+
+            String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3];
+            SimpleDateFormat time1 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data1 = time1.format(new Date()); //timestamp
+            //updateAccel(a1);
+
+            String a2 = sensors[4]+ " "+ sensors[5]+ " " +sensors[6];
+            SimpleDateFormat time2 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data2 = time2.format(new Date()); //timestamp
+            //updateAccel(a2);
+
+            String a3 = sensors[7]+ " "+ sensors[8]+ " " +sensors[9];
+            SimpleDateFormat time3 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data3 = time3.format(new Date()); //timestamp
+            //updateAccel(a3);
+
+            String a4 = sensors[10]+ " "+ sensors[11]+ " " +sensors[12];
+            SimpleDateFormat time4 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data4 = time4.format(new Date()); //timestamp
+            //updateAccel(a4);
+
+            String a5 = sensors[13]+ " "+ sensors[14]+ " " +sensors[15];
+            SimpleDateFormat time5 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data5 = time5.format(new Date()); //timestamp
+            //updateAccel(a5);
+
+            String a6 = sensors[16]+ " "+ sensors[17]+ " " +sensors[18];
+            SimpleDateFormat time6 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data6 = time6.format(new Date()); //timestamp
+            //updateAccel(a6);
+
+            String a7 = sensors[19]+ " "+ sensors[20]+ " " +sensors[21];
+            SimpleDateFormat time7 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data7 = time7.format(new Date()); //timestamp
+            //updateAccel(a7);
+
+            String a8 = sensors[22]+ " "+ sensors[23] + " "+sensors[24];
+            SimpleDateFormat time8 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data8 = time8.format(new Date()); //timestamp
+            //updateAccel(a8);
+
+            String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
+            SimpleDateFormat time9 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data9 = time9.format(new Date()); //timestamp
+            //updateAccel(a9);
+
+            String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
+            SimpleDateFormat time10 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
+            String time_data10 = time10.format(new Date()); //timestamp
+            //updateAccel(a10);
+
+            String message0= a0 + time_data0 + "\n" + a1 + time_data1 + "\n" + a2 + time_data2 + "\n" + a3 + time_data3 + "\n" + a4 + time_data4 + "\n" + a5 + time_data5 + "\n"
+                    + a6 + time_data6 + "\n" + a7 + time_data7 + "\n" + a8 + time_data8 + "\n" + a9 + time_data9 + "\n" + a10 + time_data10 + "\n";
+
+            String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
+            File path;    //저장 데이터가 존재하는 디렉토리경로
+            File file;     //파일명까지 포함한 경로
+
+            if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+                return;
+            }
+
+            path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            file= new File(path, "Data.hwp"); //파일명까지 포함함 경로의 File 객체 생성
+            try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
+                FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
+                PrintWriter writer= new PrintWriter(wr);
+                writer.println(message0);
+                writer.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         @Override
