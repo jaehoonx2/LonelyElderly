@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     intent.putExtra("uri", "119");
                 }
-
                 startActivityForResult(intent, REQUEST_CODE_HRM);
                 break;
             }

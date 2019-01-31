@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:background="#fcfdd6"
         android:textColor="@android:color/black"
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -20,18 +21,22 @@
         android:layout_height="230dp" />
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_margin="3dp"
+        android:background="#fcfdd6"
         android:gravity="center"
         android:text="현재 심박수 (BPM)"
-        android:textSize="25dp"/>
+        android:textSize="25dp" />
 
     <TextView
         android:id="@+id/heartBPM"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:background="#fcfdd6"
+        android:layout_margin="3dp"
         android:gravity="center"
         android:text="미측정"
         android:textSize="40dp" />
@@ -41,12 +46,16 @@
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
         android:text="측정 시작, 저장"
+        android:background="#e3dbf2"
+        android:layout_margin="3dp"
         android:textSize="25dp" />
     <Button
         android:id="@+id/buttonDisconnect"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
+        android:background="#e3dbf2"
+        android:layout_margin="3dp"
         android:text="측정 중지"
         android:textSize="25dp" />
 
@@ -55,6 +64,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:onClick="mOnClick"
+        android:background="#e3dbf2"
+        android:layout_margin="3dp"
         android:text="뒤로"
         android:textSize="25dp" />
 </LinearLayout>

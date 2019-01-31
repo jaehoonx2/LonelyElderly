@@ -7,57 +7,56 @@
     tools:context=".InfoActivity">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="긴급 연락처"
-        android:textSize="25dp"
-        />
-
-    <LinearLayout
-        android:layout_marginTop="20dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="72dp"
+        android:layout_gravity="center"
+        android:background="#e3dbf2"
+        android:gravity="center"
+        android:text="긴급 연락처"
+        android:textSize="35dp" />
 
         <EditText
             android:id="@+id/editText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:padding="20dp"
+            android:layout_gravity="center"
             android:inputType="phone"
+            android:layout_marginBottom="20dp"
             android:hint="보호자 연락처를 적어주세요"
-            android:textSize="25dp"
-            />
-
-        <Button
-            android:id="@+id/button_save"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="저장"
-            android:textSize="25dp"
-            android:onClick="OnClick"/>
-    </LinearLayout>
+            android:textSize="25dp" />
 
     <Button
-        android:layout_marginTop="20dp"
-        android:id="@+id/button_back"
-        android:layout_width="wrap_content"
+        android:id="@+id/button_save"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="뒤로"
+        android:onClick="OnClick"
+        android:text="저장하기"
+        android:layout_margin="5dp"
         android:textSize="25dp"
-        android:onClick="OnClick"/>
+        android:layout_gravity="center"
+        android:background="#e3dbf2"/>
+
+    <Button
+        android:id="@+id/button_back"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="뒤로가기"
+        android:textSize="25dp"
+        android:layout_margin="5dp"
+        android:onClick="OnClick"
+        android:layout_gravity="center"
+        android:background="#e3dbf2"/>
 
     <TextView
         android:id="@+id/number"
-        android:layout_width="wrap_content"
+        android:layout_width="287dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center"
-        android:text="saved number: null"
         android:layout_margin="20dp"
+        android:gravity="center"
+        android:background="#fcfdd6"
+        android:text="저장된 번호 없음"
         android:textSize="30dp" />
 
 </LinearLayout>

@@ -1,63 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_hrm"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="138dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#e3dbf2"
             android:drawableTop="@drawable/heart_rate"
             android:onClick="OnClick"
+            android:padding="20dp"
             android:text="심박수 감지"
             android:textSize="25dp" />
 
         <Button
             android:id="@+id/button_info"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fcfdd6"
             android:drawableTop="@drawable/phonebook"
             android:onClick="OnClick"
+            android:padding="20dp"
             android:text="정보 수정"
             android:textSize="25dp" />
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        android:layout_weight="1">
 
         <Button
             android:id="@+id/button_connect"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fcfdd6"
+            android:padding="20dp"
             android:drawableTop="@drawable/band_connect"
             android:onClick="OnClick"
             android:text="밴드 연결"
@@ -65,8 +59,11 @@
 
         <Button
             android:id="@+id/button_disconnect"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#e3dbf2"
+            android:padding="20dp"
             android:drawableTop="@drawable/band_disconnect"
             android:onClick="OnClick"
             android:text="연결 해제"
@@ -75,34 +72,33 @@
 
     <LinearLayout
         android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:layout_weight="1">
 
         <Button
             android:id="@+id/button_call"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="115dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#e3dbf2"
             android:drawableTop="@drawable/telephone"
             android:onClick="OnClick"
+            android:padding="20dp"
             android:text="긴급 연락"
             android:textSize="25dp" />
 
         <Button
             android:id="@+id/button_exit"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#fcfdd6"
+            android:padding="20dp"
             android:drawableTop="@drawable/power_off"
             android:onClick="OnClick"
             android:text="앱 종료"
             android:textSize="25dp" />
     </LinearLayout>
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
