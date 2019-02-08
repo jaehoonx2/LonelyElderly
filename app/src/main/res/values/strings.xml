@@ -12,5 +12,6 @@
     <string name="buttonConnect">Connect</string>
     <string name="buttonDisconnect">Disconnect</string>
     <string name="buttonBack">Back</string>
+    <string name="title_activity_phone_accel">PhoneAccelActivity</string>
 
 </resources>

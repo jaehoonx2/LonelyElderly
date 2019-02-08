@@ -17,13 +17,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Calendar;
-import java.util.TimeZone;
-
-import static java.lang.Integer.parseInt;
 
 public class ConnectionService extends SAAgent {
     private static final String TAG = "LonelyElderly";
@@ -135,6 +130,10 @@ public class ConnectionService extends SAAgent {
         @Override
         public void onReceive(int channelId, byte[] data) {
             final String message =new String(data);
+
+            SimpleDateFormat time0 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
+            String time_data0 = time0.format(new Date()); //timestamp
+
             String[] sensors = message.split("\\s");
             Log.i(TAG, "bpm "+ sensors[0] + " " +
                     "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
@@ -150,8 +149,6 @@ public class ConnectionService extends SAAgent {
             updateHeartBPM(sensors[0]);
 
             String a0 = sensors[0];
-            //SimpleDateFormat time0 = new SimpleDateFormat(" yyyy-MM-dd HH:mm:ss.SSS"); //timestamp
-            //String time_data0 = time0.format(new Date()); //timestamp
 
             String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3];
             //updateAccel(a1);
@@ -183,7 +180,7 @@ public class ConnectionService extends SAAgent {
             String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
             //updateAccel(a10);
 
-            String message0= a0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
+            String message0= a0 + time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
                     + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10 + "\n";
 
             String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
