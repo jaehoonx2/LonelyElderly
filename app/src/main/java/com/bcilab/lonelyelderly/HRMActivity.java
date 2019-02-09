@@ -370,6 +370,7 @@ public class HRMActivity extends AppCompatActivity {
             }
 
             data.addEntry(new Entry(set.getEntryCount(), idx), 0);
+            data.setDrawValues(false);
             data.notifyDataChanged();
 
             // let the chart know it's data has changed
@@ -384,11 +385,10 @@ public class HRMActivity extends AppCompatActivity {
     private static LineDataSet createSet(){
         LineDataSet set = new LineDataSet(null, "Dynamic Data");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setLineWidth(3f);
+        set.setLineWidth(2f);
         set.setColor(Color.RED);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set.setCubicIntensity(0.2f);
-
+        set.setMode(LineDataSet.Mode.LINEAR);
+        set.setDrawCircles(false);
         return set;
     }
 }
