@@ -25,6 +25,7 @@ public class FallActivity extends AppCompatActivity {
     private static final String TAG = "FallActivity";
 
     private static TextView statusText;
+    private static TextView accel;
     private boolean mIsBound = false;
     private ConnectionService mConnectionService = null;
 
@@ -37,6 +38,7 @@ public class FallActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fall);
         statusText = (TextView) findViewById(R.id.statusText);
+        accel = (TextView) findViewById(R.id.accel);
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -122,6 +124,7 @@ public class FallActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                     }
                 }
+                accel.setText("미측정");
                 break;
             }
             case R.id.buttonBack: {
@@ -142,6 +145,7 @@ public class FallActivity extends AppCompatActivity {
     // 가속도 데이터 받아오기 및 그래프 그리기
     public static void updateAccel(final String str) {
         final String[] accel_data = str.split("\\s");
+        accel.setText("측정중");
 
         Log.d(TAG, "accel_data length : " + accel_data.length);
 

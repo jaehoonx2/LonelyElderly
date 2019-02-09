@@ -131,11 +131,8 @@ public class ConnectionService extends SAAgent {
         @Override
         public void onReceive(int channelId, byte[] data) {
             final String message =new String(data);
-
-            SimpleDateFormat time0 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
-            String time_data0 = time0.format(new Date()); //timestamp
-
             String[] sensors = message.split("\\s");
+            FileSave(sensors);
             Log.i(TAG, "bpm "+ sensors[0] + " " +
                     "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
                     + sensors[4] + " " + sensors[5] + " " + sensors[6] + " "
@@ -149,6 +146,11 @@ public class ConnectionService extends SAAgent {
                     + sensors[28] + " " + sensors[29] + " " + sensors[30] + " ");
             updateHeartBPM(sensors[0]);
             updateAcc(message);
+        }
+
+        public void FileSave(String[] sensors){
+            SimpleDateFormat time0 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
+            String time_data0 = time0.format(new Date()); //timestamp
 
             String a0 = sensors[0];
             String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3];
@@ -162,9 +164,8 @@ public class ConnectionService extends SAAgent {
             String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
             String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
 
-
             String message0= a0 + time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
-                    + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10 + "\n";
+                    + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10;
 
             String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
             File path;    //저장 데이터가 존재하는 디렉토리경로
@@ -175,7 +176,7 @@ public class ConnectionService extends SAAgent {
             }
 
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file= new File(path, "Data.txt"); //파일명까지 포함함 경로의 File 객체 생성
+            file= new File(path, "BandData.txt"); //파일명까지 포함함 경로의 File 객체 생성
             try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
                 FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
                 PrintWriter writer= new PrintWriter(wr);

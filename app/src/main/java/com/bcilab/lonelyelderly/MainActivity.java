@@ -82,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
             double accY = event.values[1];
             double accZ = event.values[2];
 
-            String a =String.format("%.2f" , accX);
-            String b =String.format("%.2f" , accY);
-            String c =String.format("%.2f" , accZ);
+            String a =String.format("%f" , accX);
+            String b =String.format("%f" , accY);
+            String c =String.format("%f" , accZ);
 
             SimpleDateFormat time1 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
             String time_data1 = time1.format(new Date()); //timestamp
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file= new File(path, "Data2.txt"); //파일명까지 포함함 경로의 File 객체 생성
+            file= new File(path, "PhoneData.txt"); //파일명까지 포함함 경로의 File 객체 생성
             try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
                 FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
                 PrintWriter writer= new PrintWriter(wr);
