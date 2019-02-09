@@ -25,6 +25,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_HRM = 101;
     public static final int REQUEST_CODE_INFO = 102;
+    public static final int REQUEST_CODE_FALL = 103;
     public static Uri uri;
 
     //Using the Accelometer & Gyroscoper
@@ -136,6 +137,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CODE_INFO);
                 break;
             }
+            case R.id.button_fall : {
+                Intent intent = new Intent(getApplicationContext(), FallActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_FALL);
+                break;
+            }
             case R.id.button_call : {
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 if (uri != null && !uri.equals(Uri.EMPTY)) {
@@ -167,6 +173,8 @@ public class MainActivity extends AppCompatActivity {
 
         switch (requestCode){
             case REQUEST_CODE_HRM :
+                break;
+            case REQUEST_CODE_FALL :
                 break;
             case REQUEST_CODE_INFO :
                 uri = intent.getParcelableExtra("uri_phoneNum");

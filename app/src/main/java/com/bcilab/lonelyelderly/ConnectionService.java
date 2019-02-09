@@ -27,6 +27,7 @@ public class ConnectionService extends SAAgent {
     private ServiceConnection mConnectionHandler = null;
     Handler statusHandler = new Handler();
     Handler HRHandler = new Handler();
+    Handler accHandler = new Handler();
 
     public ConnectionService() { super(TAG, SASOCKET_CLASS); }
 
@@ -147,38 +148,20 @@ public class ConnectionService extends SAAgent {
                     + sensors[25] + " " + sensors[26] + " " + sensors[27] + " "
                     + sensors[28] + " " + sensors[29] + " " + sensors[30] + " ");
             updateHeartBPM(sensors[0]);
+            updateAcc(message);
 
             String a0 = sensors[0];
-
             String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3];
-            //updateAccel(a1);
-
             String a2 = sensors[4]+ " "+ sensors[5]+ " " +sensors[6];
-            //updateAccel(a2);
-
             String a3 = sensors[7]+ " "+ sensors[8]+ " " +sensors[9];
-            //updateAccel(a3);
-
             String a4 = sensors[10]+ " "+ sensors[11]+ " " +sensors[12];
-            //updateAccel(a4);
-
             String a5 = sensors[13]+ " "+ sensors[14]+ " " +sensors[15];
-            //updateAccel(a5);
-
             String a6 = sensors[16]+ " "+ sensors[17]+ " " +sensors[18];
-            //updateAccel(a6);
-
             String a7 = sensors[19]+ " "+ sensors[20]+ " " +sensors[21];
-            //updateAccel(a7);
-
             String a8 = sensors[22]+ " "+ sensors[23] + " "+sensors[24];
-            //updateAccel(a8);
-
             String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
-            //updateAccel(a9);
-
             String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
-            //updateAccel(a10);
+
 
             String message0= a0 + time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
                     + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10 + "\n";
@@ -257,7 +240,21 @@ public class ConnectionService extends SAAgent {
         statusHandler.post(new Runnable() {
             @Override
             public void run() {
+                try{
                 HRMActivity.updateStatus(str);
+                } catch (Exception e) {}
+            }
+        });
+    }
+
+    private void updateAcc(final String data) {
+        accHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    FallActivity.updateAccel(data);
+                } catch (Exception e) {}
+
             }
         });
     }
@@ -266,7 +263,9 @@ public class ConnectionService extends SAAgent {
         HRHandler.post(new Runnable() {
             @Override
             public void run() {
-                HRMActivity.updateHeartBPM(data);
+                try {
+                    HRMActivity.updateHeartBPM(data);
+                } catch (Exception e) {}
             }
         });
     }

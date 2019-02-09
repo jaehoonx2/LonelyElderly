@@ -52,6 +52,7 @@
 
         <activity android:name=".HRMActivity" />
         <activity android:name=".InfoActivity" />
+        <activity android:name=".FallActivity"></activity>
     </application>
 
 </manifest>
