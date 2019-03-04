@@ -149,7 +149,7 @@ public class ConnectionService extends SAAgent {
         }
 
         public void FileSave(String[] sensors){
-            SimpleDateFormat time0 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
+            SimpleDateFormat time0 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
             String time_data0 = time0.format(new Date()); //timestamp
 
             String a0 = sensors[0];
@@ -164,7 +164,7 @@ public class ConnectionService extends SAAgent {
             String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
             String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
 
-            String message0= a0 + time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
+            String message0= time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
                     + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10;
 
             String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기

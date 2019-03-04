@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         Log.e("LOG", "onPause()");
-        mSensorManager.unregisterListener(mAccLis);
+        //mSensorManager.unregisterListener(mAccLis);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             String b =String.format("%f" , accY);
             String c =String.format("%f" , accZ);
 
-            SimpleDateFormat time1 = new SimpleDateFormat(" HH:mm:ss.SSS"); //timestamp
+            SimpleDateFormat time1 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
             String time_data1 = time1.format(new Date()); //timestamp
 
             String message1 = a + " " + b + " " + c + " " + time_data1;
