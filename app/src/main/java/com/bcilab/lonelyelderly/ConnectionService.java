@@ -143,17 +143,18 @@ public class ConnectionService extends SAAgent {
                     + sensors[19] + " " + sensors[20] + " " + sensors[21] + " "
                     + sensors[22] + " " + sensors[23] + " " + sensors[24] + " "
                     + sensors[25] + " " + sensors[26] + " " + sensors[27] + " "
-                    + sensors[28] + " " + sensors[29] + " " + sensors[30] + " ");
+                    + sensors[28] + " " + sensors[29] + " " + sensors[30] + " "
+                    + "timestamp " + sensors[31]);
             updateHeartBPM(sensors[0]);
             updateAcc(message);
         }
 
         public void FileSave(String[] sensors){
-            SimpleDateFormat time0 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
-            String time_data0 = time0.format(new Date()); //timestamp
+            //SimpleDateFormat time0 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
+            //String time_data0 = time0.format(new Date()); //timestamp
 
             String a0 = sensors[0];
-            String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3];
+            String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3] + " " + sensors[31];
             String a2 = sensors[4]+ " "+ sensors[5]+ " " +sensors[6];
             String a3 = sensors[7]+ " "+ sensors[8]+ " " +sensors[9];
             String a4 = sensors[10]+ " "+ sensors[11]+ " " +sensors[12];
@@ -164,7 +165,7 @@ public class ConnectionService extends SAAgent {
             String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
             String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
 
-            String message0= time_data0 + "\n" + a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
+            String message0= a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
                     + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10;
 
             String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기

@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -86,9 +87,11 @@ public class MainActivity extends AppCompatActivity {
             String b =String.format("%f" , accY);
             String c =String.format("%f" , accZ);
 
+            //Timestamp timestamp = new Timestamp(System.currentTimeMillis());
             SimpleDateFormat time1 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
             String time_data1 = time1.format(new Date()); //timestamp
 
+            //String message1 = a + " " + b + " " + c + " " + timestamp.getTime();
             String message1 = a + " " + b + " " + c + " " + time_data1;
 
             String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
