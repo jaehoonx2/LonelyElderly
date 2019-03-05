@@ -17,7 +17,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class ConnectionService extends SAAgent {
@@ -144,26 +146,31 @@ public class ConnectionService extends SAAgent {
                     + sensors[22] + " " + sensors[23] + " " + sensors[24] + " "
                     + sensors[25] + " " + sensors[26] + " " + sensors[27] + " "
                     + sensors[28] + " " + sensors[29] + " " + sensors[30] + " "
-                    + "timestamp " + sensors[31]);
+                    + sensors[31]);
             updateHeartBPM(sensors[0]);
             updateAcc(message);
         }
 
         public void FileSave(String[] sensors){
-            //SimpleDateFormat time0 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
-            //String time_data0 = time0.format(new Date()); //timestamp
+            int[] timestamp = new int[9];
+
+            int original = Integer.parseInt(sensors[31]);
+
+            for(int i=0 ; i<9 ; i++){
+                timestamp[i] = original + 20*(i+1);
+            }
 
             String a0 = sensors[0];
             String a1 = sensors[1]+ " "+ sensors[2]+ " " +sensors[3] + " " + sensors[31];
-            String a2 = sensors[4]+ " "+ sensors[5]+ " " +sensors[6];
-            String a3 = sensors[7]+ " "+ sensors[8]+ " " +sensors[9];
-            String a4 = sensors[10]+ " "+ sensors[11]+ " " +sensors[12];
-            String a5 = sensors[13]+ " "+ sensors[14]+ " " +sensors[15];
-            String a6 = sensors[16]+ " "+ sensors[17]+ " " +sensors[18];
-            String a7 = sensors[19]+ " "+ sensors[20]+ " " +sensors[21];
-            String a8 = sensors[22]+ " "+ sensors[23] + " "+sensors[24];
-            String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27];
-            String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30];
+            String a2 = sensors[4]+ " "+ sensors[5]+ " " +sensors[6] + " " + timestamp[0];
+            String a3 = sensors[7]+ " "+ sensors[8]+ " " +sensors[9] + " " + timestamp[1];
+            String a4 = sensors[10]+ " "+ sensors[11]+ " " +sensors[12] + " " + timestamp[2];
+            String a5 = sensors[13]+ " "+ sensors[14]+ " " +sensors[15] + " " + timestamp[3];
+            String a6 = sensors[16]+ " "+ sensors[17]+ " " +sensors[18] + " " + timestamp[4];
+            String a7 = sensors[19]+ " "+ sensors[20]+ " " +sensors[21] + " " + timestamp[5];
+            String a8 = sensors[22]+ " "+ sensors[23] + " "+sensors[24] + " " + timestamp[6];
+            String a9 = sensors[25]+ " "+ sensors[26]+ " " +sensors[27] + " " + timestamp[7];
+            String a10 = sensors[28]+ " "+ sensors[29] + " "+sensors[30] + " " + timestamp[8];
 
             String message0= a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
                     + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10;

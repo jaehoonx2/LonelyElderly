@@ -40,15 +40,36 @@
         android:gravity="center"
         android:text="미측정"
         android:textSize="40dp" />
-    <Button
-        android:id="@+id/buttonConnect"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:background="#e3dbf2"
-        android:layout_margin="3dp"
-        android:onClick="mOnClick"
-        android:text="측정 시작, 저장"
-        android:textSize="25dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/buttonConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#e3dbf2"
+            android:layout_weight="1"
+            android:layout_margin="3dp"
+            android:onClick="mOnClick"
+            android:text="측정 시작, 저장"
+            android:textSize="25dp" />
+
+        <Button
+            android:id="@+id/test"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="#e3dbf2"
+            android:layout_weight="1"
+            android:layout_margin="3dp"
+            android:onClick="mOnClick"
+            android:text="test"
+            android:textSize="25dp" />
+
+    </LinearLayout>
+
     <Button
         android:id="@+id/buttonDisconnect"
         android:layout_width="fill_parent"

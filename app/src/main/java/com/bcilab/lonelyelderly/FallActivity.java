@@ -21,6 +21,9 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class FallActivity extends AppCompatActivity {
     private static final String TAG = "FallActivity";
 
@@ -131,6 +134,12 @@ public class FallActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
+                break;
+            }
+            case R.id.test: {
+                SimpleDateFormat testtime = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
+                String test_time = testtime.format(new Date()); //timestamp
+                Log.i(TAG, "TEST start" + " " + test_time);
                 break;
             }
             default:
