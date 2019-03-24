@@ -17,10 +17,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 public class ConnectionService extends SAAgent {
     private static final String TAG = "LonelyElderly";
@@ -157,7 +153,7 @@ public class ConnectionService extends SAAgent {
             int original = Integer.parseInt(sensors[31]);
 
             for(int i=0 ; i<9 ; i++){
-                timestamp[i] = original + 20*(i+1);
+                timestamp[i] = original + 24*(i+1);
             }
 
             String a0 = sensors[0];
