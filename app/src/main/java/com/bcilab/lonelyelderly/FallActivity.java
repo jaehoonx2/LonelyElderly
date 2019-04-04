@@ -29,6 +29,10 @@ public class FallActivity extends AppCompatActivity {
 
     private static TextView statusText;
     private static TextView accel;
+    private static Kalman mKalmanAccX; //Kalman filter x accord
+    private static Kalman mKalmanAccY; //Karlam filter y accord
+    private static Kalman mKalmanAccZ; //Kalman filter z accord
+    private  static float mX, mY, mZ; //variable to save previous Kalman filter value
     private boolean mIsBound = false;
     private ConnectionService mConnectionService = null;
 
@@ -42,6 +46,11 @@ public class FallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fall);
         statusText = (TextView) findViewById(R.id.statusText);
         accel = (TextView) findViewById(R.id.accel);
+
+        //Kalman filter initialize
+        mKalmanAccX = new Kalman(0.0f);
+        mKalmanAccY = new Kalman(0.0f);
+        mKalmanAccZ = new Kalman(0.0f);
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -158,16 +167,28 @@ public class FallActivity extends AppCompatActivity {
 
         Log.d(TAG, "accel_data length : " + accel_data.length);
 
+        float filteredX = 0.0f; //x variable to apply Kalman filter
+        float filteredY = 0.0f; //y variable to apply Kalman filter
+        float filteredZ = 0.0f; //z variable to apply Kalman filter
+
         if(plotData){
             for(int i = 1; i < 31; i++){
-                if(i % 3 == 1)  // accel_x
-                    addEntry(Float.parseFloat(accel_data[i]), 0);
-                else if(i % 3 == 2) // accel_y
-                    addEntry(Float.parseFloat(accel_data[i]), 1);
-                else    // accel_z
-                    addEntry(Float.parseFloat(accel_data[i]), 2);
+              if(i % 3 == 1) {// accel_x
+                  filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
+                  addEntry(filteredX,0);
+                  mX = filteredX;
+              }
+              else if(i % 3 == 2) {// accel_y
+                  filteredY = (float) mKalmanAccY.update((Float.parseFloat(accel_data[i])));
+                  addEntry(filteredY, 1);
+                  mY = filteredY;
+              }
+              else {// accel_z
+                  filteredZ = (float) mKalmanAccZ.update((Float.parseFloat(accel_data[i])));
+                  addEntry(filteredZ, 2);
+                  mZ = filteredZ;
+              }
             }
-
             plotData = false;
         }
     }
