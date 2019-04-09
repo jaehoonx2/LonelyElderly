@@ -4,13 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/background"
     tools:context=".InfoActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_gravity="center"
-        android:background="#e3dbf2"
+        android:background="@drawable/info_background"
         android:gravity="center"
         android:text="긴급 연락처"
         android:textSize="35dp" />
@@ -24,6 +25,7 @@
             android:inputType="phone"
             android:layout_marginBottom="20dp"
             android:hint="보호자 연락처를 적어주세요"
+            android:textColorHint="#ffffff"
             android:textSize="25dp" />
 
     <Button
@@ -35,7 +37,7 @@
         android:layout_margin="5dp"
         android:textSize="25dp"
         android:layout_gravity="center"
-        android:background="#e3dbf2"/>
+        android:background="@drawable/info_background"/>
 
     <Button
         android:id="@+id/button_back"
@@ -46,7 +48,7 @@
         android:layout_margin="5dp"
         android:onClick="OnClick"
         android:layout_gravity="center"
-        android:background="#e3dbf2"/>
+        android:background="@drawable/info_background"/>
 
     <TextView
         android:id="@+id/number"
@@ -55,8 +57,8 @@
         android:layout_gravity="center"
         android:layout_margin="20dp"
         android:gravity="center"
-        android:background="#fcfdd6"
         android:text="저장된 번호 없음"
+        android:textColor="#ffffff"
         android:textSize="30dp" />
 
 </LinearLayout>
