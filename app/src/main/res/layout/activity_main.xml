@@ -28,7 +28,7 @@
             android:text="심박수 감지"
             android:textColor="#ffffff"
             android:textSize="25dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
+            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
 
         <Button
             android:id="@+id/button_fall"
@@ -43,7 +43,7 @@
             android:padding="20dp"
             android:text="낙상 감지"
             android:textSize="25dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
+            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
 
     </LinearLayout>
 
@@ -67,7 +67,7 @@
             android:padding="10dp"
             android:text="정보 수정"
             android:textSize="20dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
+            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
 
         <Button
             android:id="@+id/button_exit"
@@ -82,7 +82,7 @@
             android:padding="10dp"
             android:text="앱 종료"
             android:textSize="20dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 
         <Button
@@ -98,7 +98,7 @@
             android:padding="10dp"
             android:text="긴급 연락"
             android:textSize="20dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 
     </LinearLayout>
@@ -124,7 +124,7 @@
             android:padding="20dp"
             android:text="휴대폰 데이터 수집"
             android:textSize="17dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 
         <Button
@@ -140,7 +140,7 @@
             android:padding="20dp"
             android:text="데이터 수집 종료"
             android:textSize="17dp"
-            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 
     </LinearLayout>
