@@ -11,9 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="72dp"
         android:layout_gravity="center"
-        android:background="@drawable/info_background"
         android:gravity="center"
-        android:text="긴급 연락처"
+        android:fontFamily="@font/bmhanna_11yrs_ttf"
+        android:text="긴급 연락처 설정"
+        android:textColor="#ffffff"
         android:textSize="35dp" />
 
         <EditText
@@ -25,8 +26,22 @@
             android:inputType="phone"
             android:layout_marginBottom="20dp"
             android:hint="보호자 연락처를 적어주세요"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
             android:textColorHint="#ffffff"
             android:textSize="25dp" />
+
+    <Button
+        android:id="@+id/button_load"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:onClick="OnClick"
+        android:text="불러오기"
+        android:layout_margin="5dp"
+        android:textSize="25dp"
+        android:layout_gravity="center"
+        android:background="@drawable/info_background"
+        android:fontFamily="@font/bmhanna_11yrs_ttf"
+        android:textColor="#000000"/>
 
     <Button
         android:id="@+id/button_save"
@@ -37,7 +52,9 @@
         android:layout_margin="5dp"
         android:textSize="25dp"
         android:layout_gravity="center"
-        android:background="@drawable/info_background"/>
+        android:background="@drawable/info_background"
+        android:fontFamily="@font/bmhanna_11yrs_ttf"
+        android:textColor="#000000"/>
 
     <Button
         android:id="@+id/button_back"
@@ -48,7 +65,9 @@
         android:layout_margin="5dp"
         android:onClick="OnClick"
         android:layout_gravity="center"
-        android:background="@drawable/info_background"/>
+        android:background="@drawable/info_background"
+        android:fontFamily="@font/bmhanna_11yrs_ttf"
+        android:textColor="#000000"/>
 
     <TextView
         android:id="@+id/number"
@@ -58,7 +77,8 @@
         android:layout_margin="20dp"
         android:gravity="center"
         android:text="저장된 번호 없음"
-        android:textColor="#ffffff"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        android:fontFamily="@font/bmhanna_11yrs_ttf"
+        android:textColor="#ffffff"/>
 
 </LinearLayout>
