@@ -3,32 +3,37 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".HRMActivity" >
+    android:background="@drawable/background"
+    tools:context=".HRMActivity">
 
     <TextView
         android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:background="#fcfdd6"
         android:textColor="@android:color/black"
         android:textSize="24sp"
         android:textStyle="bold" />
-
-    <com.github.mikephil.charting.charts.LineChart
-        android:id="@+id/chart1"
-        android:layout_width="match_parent"
-        android:layout_height="230dp" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="3dp"
-        android:background="#fcfdd6"
         android:gravity="center"
         android:text="Accelerometer Graph"
-        android:textSize="25dp"/>
+        android:textColor="#ffffff"
+        android:textSize="25dp"
+        android:fontFamily="@font/BMHANNA_11yrs_ttf"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:id="@+id/chart1"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"/>
 
     <TextView
         android:id="@+id/accel"
@@ -36,57 +41,72 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="3dp"
-        android:background="#fcfdd6"
         android:gravity="center"
         android:text="미측정"
-        android:textSize="40dp" />
+        android:textSize="40dp"
+        android:textColor="#ffffff"
+        android:fontFamily="@font/BMHANNA_11yrs_ttf"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
+        android:layout_height="wrap_content"
+
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/buttonConnect"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#e3dbf2"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
             android:onClick="mOnClick"
+            android:padding="20dp"
             android:text="측정 시작, 저장"
+            android:textColor="#ffffff"
             android:textSize="25dp" />
 
         <Button
             android:id="@+id/test"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="#e3dbf2"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_margin="3dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
             android:onClick="mOnClick"
+            android:padding="20dp"
             android:text="test"
+            android:textColor="#ffffff"
             android:textSize="25dp" />
-
     </LinearLayout>
 
     <Button
         android:id="@+id/buttonDisconnect"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
-        android:background="#e3dbf2"
+        android:background="@drawable/button_background"
         android:onClick="mOnClick"
-        android:text="측정 중지"
-        android:textSize="25dp" />
+        android:padding="20dp"
+        android:text="측정중지"
+        android:textColor="#ffffff"
+        android:textSize="25dp"
+        android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
 
     <Button
         android:id="@+id/buttonBack"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="3dp"
+        android:background="@drawable/button_background"
         android:onClick="mOnClick"
-        android:background="#e3dbf2"
+        android:padding="20dp"
         android:text="뒤로"
-        android:textSize="25dp" />
+        android:textColor="#ffffff"
+        android:textSize="25dp"
+        android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
 </LinearLayout>

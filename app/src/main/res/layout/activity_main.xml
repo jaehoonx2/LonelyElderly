@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -28,7 +27,8 @@
             android:padding="20dp"
             android:text="심박수 감지"
             android:textColor="#ffffff"
-            android:textSize="25dp" />
+            android:textSize="25dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
 
         <Button
             android:id="@+id/button_fall"
@@ -42,7 +42,8 @@
             android:onClick="OnClick"
             android:padding="20dp"
             android:text="낙상 감지"
-            android:textSize="25dp" />
+            android:textSize="25dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
 
     </LinearLayout>
 
@@ -65,7 +66,8 @@
             android:onClick="OnClick"
             android:padding="10dp"
             android:text="정보 수정"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"/>
 
         <Button
             android:id="@+id/button_exit"
@@ -79,7 +81,9 @@
             android:onClick="OnClick"
             android:padding="10dp"
             android:text="앱 종료"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            />
 
         <Button
             android:id="@+id/button_call"
@@ -93,7 +97,9 @@
             android:onClick="OnClick"
             android:padding="10dp"
             android:text="긴급 연락"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            />
 
     </LinearLayout>
 
@@ -117,7 +123,9 @@
             android:onClick="OnClick"
             android:padding="20dp"
             android:text="휴대폰 데이터 수집"
-            android:textSize="17dp" />
+            android:textSize="17dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            />
 
         <Button
             android:id="@+id/button_disconnect"
@@ -131,7 +139,9 @@
             android:onClick="OnClick"
             android:padding="20dp"
             android:text="데이터 수집 종료"
-            android:textSize="17dp" />
+            android:textSize="17dp"
+            android:fontFamily="@font/BMHANNA_11yrs_ttf"
+            />
 
     </LinearLayout>
 </LinearLayout>
