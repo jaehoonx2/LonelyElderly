@@ -143,7 +143,7 @@ public class ConnectionService extends SAAgent {
         public void FileSave(String[] sensors){
             int[] timestamp = new int[9];
 
-            int original = Integer.parseInt(sensors[31]);
+            int original = Integer.parseInt(sensors[11]);
 
             for(int i=0 ; i<9 ; i++){
                 timestamp[i] = original + 24*(i+1);
