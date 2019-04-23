@@ -168,26 +168,12 @@ public class FallActivity extends AppCompatActivity {
         Log.d(TAG, "accel_data length : " + accel_data.length);
 
         float filteredX = 0.0f; //x variable to apply Kalman filter
-        float filteredY = 0.0f; //y variable to apply Kalman filter
-        float filteredZ = 0.0f; //z variable to apply Kalman filter
 
         if(plotData){
-            for(int i = 1; i < 31; i++){
-              if(i % 3 == 1) {// accel_x
-                  filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
-                  addEntry(filteredX,0);
-                  mX = filteredX;
-              }
-              else if(i % 3 == 2) {// accel_y
-                  filteredY = (float) mKalmanAccY.update((Float.parseFloat(accel_data[i])));
-                  addEntry(filteredY, 1);
-                  mY = filteredY;
-              }
-              else {// accel_z
-                  filteredZ = (float) mKalmanAccZ.update((Float.parseFloat(accel_data[i])));
-                  addEntry(filteredZ, 2);
-                  mZ = filteredZ;
-              }
+            for(int i=1; i< 11; i++) {
+                filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
+                addEntry(filteredX, 0);
+                mX = filteredX;
             }
             plotData = false;
         }
