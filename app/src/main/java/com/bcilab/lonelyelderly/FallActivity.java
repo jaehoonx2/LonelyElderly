@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,6 +22,10 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -172,10 +177,37 @@ public class FallActivity extends AppCompatActivity {
         if(plotData){
             for(int i=1; i< 11; i++) {
                 filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
+                if(i==1)
+                    filesave(filteredX, Float.parseFloat(accel_data[11]));
+                else
+                    filesave(filteredX, 0);
                 addEntry(filteredX, 0);
                 mX = filteredX;
             }
             plotData = false;
+        }
+    }
+
+    public static void filesave(float filteredX, float accel_data){
+        String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
+        File path;    //저장 데이터가 존재하는 디렉토리경로
+        File file;     //파일명까지 포함한 경로
+
+        if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+            return;
+        }
+
+        path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        file= new File(path, "BandData.txt"); //파일명까지 포함함 경로의 File 객체 생성
+        try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
+            FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
+            PrintWriter writer= new PrintWriter(wr);
+            writer.print(filteredX);
+            writer.println(accel_data);
+            writer.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

@@ -130,7 +130,7 @@ public class ConnectionService extends SAAgent {
         public void onReceive(int channelId, byte[] data) {
             final String message =new String(data);
             String[] sensors = message.split("\\s");
-            FileSave(sensors);
+            //FileSave(sensors);
             Log.i(TAG, "bpm "+ sensors[0] + " " +
                     "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
                     + sensors[4] + " " + sensors[5] + " " + sensors[6] + " "
@@ -140,7 +140,7 @@ public class ConnectionService extends SAAgent {
             updateAcc(message);
         }
 
-        public void FileSave(String[] sensors){
+        /*public void FileSave(String[] sensors){
             int[] timestamp = new int[9];
 
             int original = Integer.parseInt(sensors[11]);
@@ -183,7 +183,7 @@ public class ConnectionService extends SAAgent {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
+        }*/
 
         @Override
         protected void onServiceConnectionLost(int reason) {
