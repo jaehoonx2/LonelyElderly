@@ -169,18 +169,23 @@ public class FallActivity extends AppCompatActivity {
     public static void updateAccel(final String str) {
         final String[] accel_data = str.split("\\s");
         accel.setText("측정중");
-
         Log.d(TAG, "accel_data length : " + accel_data.length);
-
         float filteredX = 0.0f; //x variable to apply Kalman filter
 
         if(plotData){
             for(int i=1; i< 11; i++) {
+                int[] timestamp = new int[9]; //시간 계산 위해 추가
+                int a;
                 filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
-                if(i==1)
-                    filesave(filteredX, Float.parseFloat(accel_data[11]));
-                else
-                    filesave(filteredX, 0);
+                if(i==1) //10개 중에서 처음으로 받은 데이터
+                    filesave(filteredX, Integer.parseInt(accel_data[11]));
+                else { //2~10 번째 데이터는 시간 증가시키는 과정 추가
+                    int original = Integer.parseInt(accel_data[11]);
+                    for(a=0 ; i<9 ; a++){
+                        timestamp[a] = original + 49*(a+1);
+                    }
+                    filesave(filteredX, timestamp[a]);
+                }
                 addEntry(filteredX, 0);
                 mX = filteredX;
             }
@@ -188,7 +193,7 @@ public class FallActivity extends AppCompatActivity {
         }
     }
 
-    public static void filesave(float filteredX, float accel_data){
+    public static void filesave(float filteredX, int accel_data){
         String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
         File path;    //저장 데이터가 존재하는 디렉토리경로
         File file;     //파일명까지 포함한 경로
@@ -203,6 +208,7 @@ public class FallActivity extends AppCompatActivity {
             FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
             PrintWriter writer= new PrintWriter(wr);
             writer.print(filteredX);
+            writer.print("  ");
             writer.println(accel_data);
             writer.close();
         } catch (IOException e) {

@@ -64,7 +64,7 @@
         android:fontFamily="@font/bmhanna_11yrs_ttf"
         android:onClick="mOnClick"
         android:padding="20dp"
-        android:text="측정 시작, 저장"
+        android:text="측정 시작"
         android:textColor="#ffffff"
         android:textSize="25dp" />
 

@@ -130,7 +130,6 @@ public class ConnectionService extends SAAgent {
         public void onReceive(int channelId, byte[] data) {
             final String message =new String(data);
             String[] sensors = message.split("\\s");
-            //FileSave(sensors);
             Log.i(TAG, "bpm "+ sensors[0] + " " +
                     "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
                     + sensors[4] + " " + sensors[5] + " " + sensors[6] + " "
@@ -139,51 +138,6 @@ public class ConnectionService extends SAAgent {
             updateHeartBPM(sensors[0]);
             updateAcc(message);
         }
-
-        /*public void FileSave(String[] sensors){
-            int[] timestamp = new int[9];
-
-            int original = Integer.parseInt(sensors[11]);
-
-            for(int i=0 ; i<9 ; i++){
-                timestamp[i] = original + 24*(i+1);
-            }
-
-            String a0 = sensors[0];
-            String a1 = sensors[1]+ " " + sensors[11];
-            String a2 = sensors[2]+ " " + timestamp[0];
-            String a3 = sensors[3]+ " " + timestamp[1];
-            String a4 = sensors[4]+ " " + timestamp[2];
-            String a5 = sensors[5]+ " " + timestamp[3];
-            String a6 = sensors[6]+ " " +  timestamp[4];
-            String a7 = sensors[7]+ " " + timestamp[5];
-            String a8 = sensors[8]+ " " + timestamp[6];
-            String a9 = sensors[9]+ " " + timestamp[7];
-            String a10 = sensors[10]+ " " + timestamp[8];
-
-            String message0= a1 + "\n" + a2 + "\n" + a3 + "\n" + a4 + "\n" + a5 + "\n"
-                    + a6 + "\n" + a7 + "\n" + a8 +"\n" + a9 + "\n" + a10;
-
-            String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
-            File path;    //저장 데이터가 존재하는 디렉토리경로
-            File file;     //파일명까지 포함한 경로
-
-            if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
-                return;
-            }
-
-            path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file= new File(path, "BandData.txt"); //파일명까지 포함함 경로의 File 객체 생성
-            try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
-                FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
-                PrintWriter writer= new PrintWriter(wr);
-                writer.println(message0);
-                writer.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }*/
 
         @Override
         protected void onServiceConnectionLost(int reason) {
