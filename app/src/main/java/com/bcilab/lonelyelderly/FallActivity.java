@@ -171,21 +171,23 @@ public class FallActivity extends AppCompatActivity {
         accel.setText("측정중");
         Log.d(TAG, "accel_data length : " + accel_data.length);
         float filteredX = 0.0f; //x variable to apply Kalman filter
-
         if(plotData){
-            for(int i=1; i< 11; i++) {
-                int[] timestamp = new int[9]; //시간 계산 위해 추가
+            for(int i=0; i< 9; i++) {
+                int[] timestamp = new int[9];
+                float[] ivalue = new float[9];
                 int a;
-                filteredX = (float) mKalmanAccX.update((Float.parseFloat(accel_data[i])));
-                if(i==1) //10개 중에서 처음으로 받은 데이터
-                    filesave(filteredX, Integer.parseInt(accel_data[11]));
-                else { //2~10 번째 데이터는 시간 증가시키는 과정 추가
-                    int original = Integer.parseInt(accel_data[11]);
-                    for(a=0 ; i<9 ; a++){
-                        timestamp[a] = original + 49*(a+1);
-                    }
-                    filesave(filteredX, timestamp[a]);
-                }
+                int original = Integer.parseInt(accel_data[11]);
+
+                ivalue[i]= Float.parseFloat(accel_data[i+2]) - Float.parseFloat(accel_data[i+1]);
+                filteredX=(float)mKalmanAccX.update(ivalue[i]);
+                                if(i==0) //처음으로 받은 데이터의 시간
+                                    filesave(filteredX, original);
+                                else { //처음 이후 데이터는 시간 증가시키는 과정 추가
+                                    for(a=0 ; a<=i ; a++){
+                                        timestamp[i] = original + (49*a);
+                                    }
+                                    filesave(filteredX, timestamp[i]);
+                                }
                 addEntry(filteredX, 0);
                 mX = filteredX;
             }
@@ -207,9 +209,7 @@ public class FallActivity extends AppCompatActivity {
         try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
             FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
             PrintWriter writer= new PrintWriter(wr);
-            writer.print(filteredX);
-            writer.print("  ");
-            writer.println(accel_data);
+            writer.println(filteredX+ " " + accel_data);
             writer.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
