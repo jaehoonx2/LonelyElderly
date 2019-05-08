@@ -171,25 +171,26 @@ public class FallActivity extends AppCompatActivity {
         accel.setText("측정중");
         Log.d(TAG, "accel_data length : " + accel_data.length);
         float filteredX = 0.0f; //x variable to apply Kalman filter
+        float filteredY = 0.0f;
+
         if(plotData){
-            for(int i=0; i< 9; i++) {
+            for(int i=1; i< 10; i++) {
                 int[] timestamp = new int[9];
                 float[] ivalue = new float[9];
-                int a;
                 int original = Integer.parseInt(accel_data[11]);
 
-                ivalue[i]= Float.parseFloat(accel_data[i+2]) - Float.parseFloat(accel_data[i+1]);
-                filteredX=(float)mKalmanAccX.update(ivalue[i]);
-                                if(i==0) //처음으로 받은 데이터의 시간
-                                    filesave(filteredX, original);
+                filteredX=(float)mKalmanAccX.update(Float.parseFloat(accel_data[i]));
+                filteredY=(float)mKalmanAccY.update(Float.parseFloat(accel_data[i+1]));
+                ivalue[i]=filteredY-filteredX;
+                                if(i==1) //처음으로 받은 데이터의 시간
+                                    filesave(ivalue[i], original);
                                 else { //처음 이후 데이터는 시간 증가시키는 과정 추가
-                                    for(a=0 ; a<=i ; a++){
-                                        timestamp[i] = original + (49*a);
-                                    }
-                                    filesave(filteredX, timestamp[i]);
+                                    timestamp[i] = original + (49*(i-1));
+                                    filesave(ivalue[i], timestamp[i]);
                                 }
-                addEntry(filteredX, 0);
+                addEntry(ivalue[i], 0);
                 mX = filteredX;
+                mY = filteredY;
             }
             plotData = false;
         }
