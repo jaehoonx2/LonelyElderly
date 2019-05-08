@@ -174,15 +174,16 @@ public class FallActivity extends AppCompatActivity {
         float filteredY = 0.0f;
 
         if(plotData){
-            for(int i=1; i< 10; i++) {
+            for(int i = 1; i < 10; i++) {
                 int[] timestamp = new int[9];
                 float[] ivalue = new float[9];
                 int original = Integer.parseInt(accel_data[11]);
 
-                filteredX=(float)mKalmanAccX.update(Float.parseFloat(accel_data[i]));
-                filteredY=(float)mKalmanAccY.update(Float.parseFloat(accel_data[i+1]));
-                ivalue[i]=filteredY-filteredX;
-                                if(i==1) //처음으로 받은 데이터의 시간
+                filteredX = (float)mKalmanAccX.update(Float.parseFloat(accel_data[i]));
+                filteredY = (float)mKalmanAccY.update(Float.parseFloat(accel_data[i+1]));
+
+                ivalue[i] = filteredY-filteredX;
+                                if(i == 1) //처음으로 받은 데이터의 시간
                                     filesave(ivalue[i], original);
                                 else { //처음 이후 데이터는 시간 증가시키는 과정 추가
                                     timestamp[i] = original + (49*(i-1));

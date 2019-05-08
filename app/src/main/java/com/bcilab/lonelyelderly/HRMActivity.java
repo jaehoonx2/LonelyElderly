@@ -76,34 +76,7 @@ public class HRMActivity extends AppCompatActivity {
         LineData data = new LineData();
         data.setValueTextColor(Color.WHITE);
         mChart.setData(data);
-        /*
-        // get the legend (only possible after setting data)
-        Legend l = mChart.getLegend();
 
-        // modify the legend ...
-        l.setForm(Legend.LegendForm.LINE);
-        l.setTextColor(Color.WHITE);
-
-        XAxis xl = mChart.getXAxis();
-        xl.setTextColor(Color.WHITE);
-        xl.setDrawGridLines(true);
-        xl.setAvoidFirstLastClipping(true);
-        xl.setEnabled(true);
-
-        YAxis leftAxis = mChart.getAxisLeft();
-        leftAxis.setTextColor(Color.WHITE);
-        leftAxis.setDrawGridLines(false);
-        leftAxis.setAxisMaximum(10f);
-        leftAxis.setAxisMinimum(0f);
-        leftAxis.setDrawGridLines(true);
-
-        YAxis rightAxis = mChart.getAxisRight();
-        rightAxis.setEnabled(false);
-
-        mChart.getAxisLeft().setDrawGridLines(false);
-        mChart.getXAxis().setDrawGridLines(false);
-        mChart.setDrawBorders(false);
-        */
         startPlot();
     }
 
@@ -216,7 +189,13 @@ public class HRMActivity extends AppCompatActivity {
 
     // 심박수 그래프 그리기 & 심정지 감지 시 스레드 실행
     public static void updateHeartBPM(final String str) {
-        heartBPM.setText(str);
+        String[] data = str.split("\\s");
+        heartBPM.setText(data[0]);
+
+        Float[] Ivalue = new Float[9];
+
+        for(int i = 0; i < Ivalue.length; i++)
+            Ivalue[i] = Float.parseFloat(data[i+2]) - Float.parseFloat(data[i+1]);
 
         // addTextChangedListener - if heartBPM text is changed, add an entry into graph
         heartBPM.addTextChangedListener(new TextWatcher() {
@@ -238,6 +217,12 @@ public class HRMActivity extends AppCompatActivity {
         // 측정된 심박수가 0이고, 스레드 생성 이후 0이 최초로 감지되었을 때 스레드 실행
         // UI가 아닌 실제 측정값으로 판단하므로 UI text 가 0이어도 실행 안 될 수 있음
         if(Integer.parseInt(str) == 0 && isFirstZero){
+            // 만약 사용자의 움직임이 없으면 탈착상황으로 판단함
+            for(int i = 0; i < Ivalue.length; i++){
+                if(Math.abs(Ivalue[i]) < 0.040f)
+                    return;
+            }
+
             isFirstZero = false;
             detectThread = new DetectThread();
             detectThread.start();
