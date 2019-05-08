@@ -193,7 +193,7 @@ public class ConnectionService extends SAAgent {
             @Override
             public void run() {
                 try{
-                HRMActivity.updateStatus(str);
+                    HRMActivity.updateStatus(str);
                 } catch (Exception e) {}
             }
         });

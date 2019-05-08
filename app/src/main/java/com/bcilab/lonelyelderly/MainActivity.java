@@ -147,18 +147,22 @@ public class MainActivity extends AppCompatActivity {
             }
             case R.id.button_call : {
                 Intent intent = new Intent(Intent.ACTION_CALL);
-                if (uri != null && !uri.equals(Uri.EMPTY)) {
+
+                if (InfoActivity.phoneNumLoad() != null) {
+                    Uri uri = Uri.parse("tel:" + InfoActivity.phoneNumLoad());
                     intent.setData(uri);
+
+                    try {
+                        Toast.makeText(getApplicationContext(), "긴급 연락 기능 작동! 보호자에게 전화를 발신합니다.", Toast.LENGTH_LONG).show();
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                 } else {
                     Toast.makeText(getApplicationContext(), "긴급 연락처를 저장하십시오", Toast.LENGTH_SHORT).show();
                 }
 
-                try {
-                    Toast.makeText(getApplicationContext(), "긴급 연락 기능 작동! 보호자에게 전화를 발신합니다.", Toast.LENGTH_LONG).show();
-                    startActivity(intent);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 break;
             }
             case R.id.button_exit : {

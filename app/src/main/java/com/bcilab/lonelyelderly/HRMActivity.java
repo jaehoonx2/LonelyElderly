@@ -234,19 +234,19 @@ public class HRMActivity extends AppCompatActivity {
         @Override
         public void run() {
             for(int elapsed = 0; elapsed < 11; elapsed++){
-               Message message = detectHandler.obtainMessage();
-               Bundle bundle = new Bundle();
-               bundle.putInt("elapsed", elapsed);
-               message.setData(bundle);
+                Message message = detectHandler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putInt("elapsed", elapsed);
+                message.setData(bundle);
 
-               detectHandler.sendMessage(message);
+                detectHandler.sendMessage(message);
 
-               try {
-                   Thread.sleep(1000);
-               } catch (Exception e) {
-                   Log.e("DetectThread", "Exception in processing message.", e);
-               }
-           }
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                    Log.e("DetectThread", "Exception in processing message.", e);
+                }
+            }
         }
     }
 
@@ -257,8 +257,8 @@ public class HRMActivity extends AppCompatActivity {
          * vibe_pattern[even] : vibrating time
          */
         long[] vibe_pattern = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                                100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                                100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
 
         // 받은 메시지를 통해 경과시간 혹은 알림 상자 띄우기
         @Override
