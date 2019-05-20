@@ -128,13 +128,8 @@ public class ConnectionService extends SAAgent {
 
         @Override
         public void onReceive(int channelId, byte[] data) {
-            final String message =new String(data);
-//            String[] sensors = message.split("\\s");
-//            Log.i(TAG, "bpm "+ sensors[0] + " " +
-//                    "acc "  + sensors[1] + " " + sensors[2] + " " + sensors[3] + " "
-//                    + sensors[4] + " " + sensors[5] + " " + sensors[6] + " "
-//                    + sensors[7] + " " + sensors[8] + " " + sensors[9] + " "
-//                    + sensors[10] + " " + sensors[11]);
+            final String message = new String(data);
+
             updateHeartBPM(message);
             updateAcc(message);
         }

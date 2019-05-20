@@ -30,16 +30,16 @@ public class InfoActivity extends AppCompatActivity {
 
     EditText editText;
     Uri uri_phoneNum;
-    private static TextView number; //저장된 번호 띄우기
+    private static TextView number;                 // 저장된 번호 띄우기
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info);
         editText = (EditText) findViewById(R.id.editText);
-        number =(TextView)findViewById(R.id.number); //저장된 번호 띄우기
-
-        number.setText(phoneNumLoad());
+        number = (TextView)findViewById(R.id.number);
+        number.setText(phoneNumLoad());             // 저장된 번호 띄우기
+        uri_phoneNum = Uri.parse("tel:" + number.getText().toString());
     }
 
     public void OnClick(View v) {
@@ -55,8 +55,9 @@ public class InfoActivity extends AppCompatActivity {
             case R.id.button_save : {
                 String phoneNum = editText.getText().toString();
                 uri_phoneNum = Uri.parse("tel:" + phoneNum);
+
                 Toast.makeText(InfoActivity.this, "긴급 연락처가 저장되었습니다.", Toast.LENGTH_SHORT).show();
-                number.setText(phoneNum);                  // 저장된 번호 띄우기
+                number.setText(phoneNum);           // 저장된 번호 띄우기
                 phoneNumSave(phoneNum);
                 break;
             }
@@ -64,6 +65,7 @@ public class InfoActivity extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.putExtra("uri_phoneNum", uri_phoneNum);
                 setResult(RESULT_OK, intent);
+
                 finish();
                 break;
             }
@@ -120,25 +122,27 @@ public class InfoActivity extends AppCompatActivity {
         }
     }
 
-    //경로의 텍스트 파일읽기
+    // 경로의 텍스트 파일읽기
     public static String phoneNumLoad(){
         String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)+"/phoneNum.txt";
 
         StringBuffer strBuffer = new StringBuffer();
-        try{
+
+        try {
             InputStream is = new FileInputStream(path);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
             String line = "";
-            while((line = reader.readLine())!=null){
-                strBuffer.append(line+"\n");
-            }
+
+            while((line = reader.readLine()) != null)
+                strBuffer.append(line + "\n");
 
             reader.close();
             is.close();
-        }catch (IOException e){
+        } catch (IOException e){
             e.printStackTrace();
             return "";
         }
+        
         return strBuffer.toString();
     }
 }

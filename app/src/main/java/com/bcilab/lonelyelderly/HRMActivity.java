@@ -43,9 +43,11 @@ public class HRMActivity extends AppCompatActivity {
     private static boolean plotData = true;
 
     private static DetectHandler detectHandler;
-    private static DetectThread detectThread;
-    private static boolean isFirstZero = true;
+    private static Thread detectThread;
 
+    private static String[] SVM;
+
+    static boolean isHeartAttack = false;
     Vibrator vibrator;
 
     @Override
@@ -54,11 +56,11 @@ public class HRMActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hrm);
         statusText = (TextView) findViewById(R.id.statusText);
         heartBPM = (TextView) findViewById(R.id.heartBPM);
+        SVM = new String[10];
 
         // Bind service
         mIsBound = bindService(new Intent(HRMActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
         detectHandler = new DetectHandler();
-//        detectThread = new DetectThread();
 
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -86,6 +88,10 @@ public class HRMActivity extends AppCompatActivity {
         if(graphThread != null){
             graphThread.interrupt();
         }
+
+        if(detectThread != null){
+            detectThread.interrupt();
+        }
     }
 
     @Override
@@ -97,7 +103,11 @@ public class HRMActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        graphThread.interrupt();
+        if(graphThread != null)
+            graphThread.interrupt();
+
+        if(detectThread != null)
+            detectThread.interrupt();
 
         // Clean up connections
         if (mIsBound == true && mConnectionService != null) {
@@ -111,6 +121,7 @@ public class HRMActivity extends AppCompatActivity {
             mIsBound = false;
         }
     }
+
 
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
@@ -133,14 +144,22 @@ public class HRMActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
                 }
+//                if(isFirstConnect) {
+//                    try {
+//                        Thread.sleep(10000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    isFirstConnect = false;
+//                }
                 break;
             }
             case R.id.buttonDisconnect: {
-                // if detectThread is working, kill the thread.
-                if(detectThread.getState() == Thread.State.RUNNABLE) {
+                if(graphThread != null)
+                    graphThread.interrupt();
+
+                if(detectThread != null)
                     detectThread.interrupt();
-                    detectThread.stop();
-                }
 
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
@@ -151,11 +170,11 @@ public class HRMActivity extends AppCompatActivity {
                 break;
             }
             case R.id.buttonBack: {
-                // if detectThread is working, kill the thread.
-                if(detectThread.getState() == Thread.State.RUNNABLE) {
+                if(graphThread != null)
+                    graphThread.interrupt();
+
+                if(detectThread != null)
                     detectThread.interrupt();
-                    detectThread.stop();
-                }
 
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
@@ -187,67 +206,98 @@ public class HRMActivity extends AppCompatActivity {
         statusText.setText(str);
     }
 
-    // 심박수 그래프 그리기 & 심정지 감지 시 스레드 실행
+    // 심박수 그래프 그리기 & 수치 나타내기
+
     public static void updateHeartBPM(final String str) {
+
         String[] data = str.split("\\s");
-        heartBPM.setText(data[0]);
 
-        Float[] Ivalue = new Float[9];
+        for(int i = 0; i < SVM.length; i++)
+            SVM[i] = data[i+1];
 
-        for(int i = 0; i < Ivalue.length; i++)
-            Ivalue[i] = Float.parseFloat(data[i+2]) - Float.parseFloat(data[i+1]);
+        if(plotData){
+            switch (data[0]){
+                case "-3" :
+                            heartBPM.setText(data[0]);
+                            updateStatus("밴드 탈착");
+                            if(detectThread != null)
+                                detectThread.interrupt();
 
-        // addTextChangedListener - if heartBPM text is changed, add an entry into graph
-        heartBPM.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                            break;
+                case "0" :
+                            // 착용자의 움직임이 있는지 확인하는 프로세스
+                            float isum = 0.0f;
+                            for (int i = 0; i < SVM.length - 1; i++)
+                                isum += Float.parseFloat(SVM[i + 1]) - Float.parseFloat(SVM[i]);
+                            float iavg = Math.abs(isum / (SVM.length - 1));
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(plotData){
-                    addEntry(Integer.parseInt(heartBPM.getText().toString()));
-                    plotData = false;
-                }
+                            if (iavg > 0.04) {                  // 심정지 상황 - 미세함 움직임 감지
+                                isHeartAttack = true;
+
+                                heartBPM.setText(data[0]);
+                                addEntry(Integer.parseInt(data[0]));
+                                updateStatus("심정지 의심");
+                                if (detectThread == null)
+                                    startDetect();
+                            } else {                            // 탈착 의심 상황 - 부동자세
+                                if(!isHeartAttack) {
+                                    heartBPM.setText(data[0]);
+                                    updateStatus("밴드 탈착");
+                                    if (detectThread != null)
+                                        detectThread.interrupt();
+                                }
+                            }
+                            break;
+                default :
+                    updateStatus("");
+                    heartBPM.setText(data[0]);
+                    addEntry(Integer.parseInt(data[0]));
             }
-
-            @Override
-            public void afterTextChanged(Editable s) {}
-        });
-
-        // 측정된 심박수가 0이고, 스레드 생성 이후 0이 최초로 감지되었을 때 스레드 실행
-        // UI가 아닌 실제 측정값으로 판단하므로 UI text 가 0이어도 실행 안 될 수 있음
-        if(Integer.parseInt(str) == 0 && isFirstZero){
-            // 만약 사용자의 움직임이 없으면 탈착상황으로 판단함
-            for(int i = 0; i < Ivalue.length; i++){
-                if(Math.abs(Ivalue[i]) < 0.040f)
-                    return;
-            }
-
-            isFirstZero = false;
-            detectThread = new DetectThread();
-            detectThread.start();
+            plotData = false;
         }
     }
 
-    static class DetectThread extends Thread {
-        // 심정지 감지 시, 10초 동안 시간 메시지를 DetectHandler 에게 전달하고 소멸
-        @Override
-        public void run() {
-            for(int elapsed = 0; elapsed < 11; elapsed++){
-                Message message = detectHandler.obtainMessage();
-                Bundle bundle = new Bundle();
-                bundle.putInt("elapsed", elapsed);
-                message.setData(bundle);
+    // LineChart startDetect()
+    private static void startDetect(){
 
-                detectHandler.sendMessage(message);
+        if(detectThread != null){
+            // detectThread.interrupt();
+            return;
+        }
 
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    Log.e("DetectThread", "Exception in processing message.", e);
+        detectThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int result = 0;
+
+                for(int i = 0; i < 10; i++){
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if(heartBPM.getText().toString() == "0") {
+                        result = -1;
+                        continue;
+                    } else {
+                        result = 0;
+                        break;
+                    }
+                }
+
+                if(result == -1) {
+                    Message message = detectHandler.obtainMessage();
+                    Bundle bundle = new Bundle();
+
+                    bundle.putInt("emergency", -1);
+                    message.setData(bundle);
+                    detectHandler.sendMessage(message);
                 }
             }
-        }
+        });
+
+        detectThread.start();
     }
 
     class DetectHandler extends Handler {
@@ -266,15 +316,27 @@ public class HRMActivity extends AppCompatActivity {
             super.handleMessage(msg);
 
             Bundle bundle = msg.getData();
-            int elapsed = bundle.getInt("elapsed");
-            statusText.setText("BPM = 0 최초 감지 후 " + elapsed + "초 경과");
+            int elapsed = bundle.getInt("emergency");
 
-            if (elapsed == 10) {
+            if(elapsed != -1)
+                statusText.setText("심정지 상황 의심");
+
                 // 0 : infinity, -1 : only once
                 // 10초 간 진동-off 시작
-                vibrator.vibrate(vibe_pattern, -1);
                 makeEmergencyDialog();
-            }
+                vibrator.vibrate(vibe_pattern, -1);
+
+                try {
+                    Thread.sleep(10000);
+
+                    String str = getIntent().getStringExtra("phoneNum");
+                    final Uri uri = Uri.parse("tel:" + str);
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    intent.setData(uri);
+                    startActivity(intent);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
         }
     }
 
@@ -287,7 +349,8 @@ public class HRMActivity extends AppCompatActivity {
          * 취소 버튼 누를 시 - isFirstZero 초기화 (DetectThread 재활용을 위해)
          */
         AlertDialog.Builder emergencyDialog;
-        final Uri uri = Uri.parse("tel:01012345678");
+        String str = getIntent().getStringExtra("phoneNum");
+        final Uri uri = Uri.parse("tel:" + str);
 
         emergencyDialog = new AlertDialog.Builder(this);
         emergencyDialog.setTitle("긴급");
@@ -304,16 +367,17 @@ public class HRMActivity extends AppCompatActivity {
             }
         });
 
-        emergencyDialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
+        emergencyDialog.setNegativeButton("취소(앱 종료)", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                vibrator.cancel();
-                isFirstZero = true;
+                // 앱 종료
+                moveTaskToBack(true);
+                finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
 
         // To do list
-        // 타이머 여기서부터 20초 재기 - 20초 후 자동 연락
         // 알림 상자 팝업 시 진동과 벨소리 기능 추가 - 진동 추가됨
         return emergencyDialog.show();
     }
@@ -368,7 +432,7 @@ public class HRMActivity extends AppCompatActivity {
 
     // LineChart createSet()
     private static LineDataSet createSet(){
-        LineDataSet set = new LineDataSet(null, "Dynamic Data");
+        LineDataSet set = new LineDataSet(null, "Beat per Minute");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setLineWidth(2f);
         set.setColor(Color.RED);

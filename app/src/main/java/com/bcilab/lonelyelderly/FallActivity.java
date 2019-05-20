@@ -14,6 +14,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
+import java.util.*;
+
+
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -28,22 +32,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Queue;
+import java.util.ArrayDeque;
 
 public class FallActivity extends AppCompatActivity {
     private static final String TAG = "FallActivity";
-
-    private static TextView statusText;
-    private static TextView accel;
-    private static Kalman mKalmanAccX; //Kalman filter x accord
-    private static Kalman mKalmanAccY; //Karlam filter y accord
-    private static Kalman mKalmanAccZ; //Kalman filter z accord
-    private  static float mX, mY, mZ; //variable to save previous Kalman filter value
     private boolean mIsBound = false;
     private ConnectionService mConnectionService = null;
 
+    private static TextView statusText;
+    private static TextView accel;
     private static LineChart mChart;
     private Thread graphThread;
     private static boolean plotData = true;
+
+    private static Kalman mKalmanPrev;      // Kalman filter t value
+    private static Kalman mKalmanNext;      // Karlam filter t+1 value
+    private static float mPrev, mNext;     // Variable to save previous Kalman filter value
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,13 +57,12 @@ public class FallActivity extends AppCompatActivity {
         statusText = (TextView) findViewById(R.id.statusText);
         accel = (TextView) findViewById(R.id.accel);
 
-        //Kalman filter initialize
-        mKalmanAccX = new Kalman(0.0f);
-        mKalmanAccY = new Kalman(0.0f);
-        mKalmanAccZ = new Kalman(0.0f);
-
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
+
+        // Kalman Filter Initialize
+        mKalmanPrev = new Kalman(0.0f);
+        mKalmanNext = new Kalman(0.0f);
 
         // Real-time Line Chart
         mChart = (LineChart) findViewById(R.id.chart1);
@@ -130,6 +134,7 @@ public class FallActivity extends AppCompatActivity {
             case R.id.buttonConnect: {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
+                    accel.setText("측정중");
                     updateStatus("Connected");
                 }
                 break;
@@ -139,9 +144,10 @@ public class FallActivity extends AppCompatActivity {
                     if (mConnectionService.closeConnection() == false) {
                         updateStatus("Disconnected");
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
+                        accel.setText("미측정");
+                        updateStatus("Disconnected");
                     }
                 }
-                accel.setText("미측정");
                 break;
             }
             case R.id.buttonBack: {
@@ -151,9 +157,9 @@ public class FallActivity extends AppCompatActivity {
                 break;
             }
             case R.id.test: {
-                SimpleDateFormat testtime = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
-                String test_time = testtime.format(new Date()); //timestamp
-                Log.i(TAG, "TEST start" + " " + test_time);
+                SimpleDateFormat logFormat = new SimpleDateFormat("HH:mm:ss.SSS");  // timestamp
+                String startTime = logFormat.format(new Date());                            // timestamp
+                Log.i(TAG, "TEST start" + " " + startTime);
                 break;
             }
             default:
@@ -165,51 +171,116 @@ public class FallActivity extends AppCompatActivity {
         statusText.setText(str);
     }
 
+    public class Queue<E> {
+        E[] arr;
+        int head = -1;
+        int tail = -1;
+        int size;
+
+    public Queue(Class < E > c, int size){
+            E[] newInstance = (E[]) Array.newInstance(c, size);
+            this.arr = newInstance;
+            this.size = 0;
+        }
+
+        boolean push (E e){
+            if (size == arr.length)
+                return false;
+
+            head = (head + 1) % arr.length;
+            arr[head] = e;
+            size++;
+
+            if (tail == -1) {
+                tail = head;
+            }
+
+            return true;
+        }
+
+        boolean pop () {
+            if (size == 0) {
+                return false;
+            }
+
+            E result = arr[tail];
+            arr[tail] = null;
+            size--;
+            tail = (tail + 1) % arr.length;
+
+            if (size == 0) {
+                head = -1;
+                tail = -1;
+            }
+
+            return true;
+        }
+
+        E peek () {
+            if (size == 0)
+                return null;
+
+            return arr[tail];
+        }
+
+        public int size () {
+            return this.size;
+        }
+
+        public String toString () {
+            return Arrays.toString(this.arr);
+        }
+    }
+
     // 가속도 데이터 받아오기 및 그래프 그리기
     public static void updateAccel(final String str) {
-        final String[] accel_data = str.split("\\s");
-        accel.setText("측정중");
-        Log.d(TAG, "accel_data length : " + accel_data.length);
-        float filteredX = 0.0f; //x variable to apply Kalman filter
-        float filteredY = 0.0f;
+        final String[] SVM = str.split("\\s");
 
+        float prev = 0.0f;                                 // variable to apply Kalman filter
+        float next = 0.0f;
+
+//        Queue<Float> q = new Queue<Float>(Integer.class, 5);
+//
         if(plotData){
             for(int i = 1; i < 10; i++) {
                 int[] timestamp = new int[9];
-                float[] ivalue = new float[9];
-                int original = Integer.parseInt(accel_data[11]);
+                float[] Ivalue = new float[9];             // next - prev
+                int original = Integer.parseInt(SVM[11]);
 
-                filteredX = (float)mKalmanAccX.update(Float.parseFloat(accel_data[i]));
-                filteredY = (float)mKalmanAccY.update(Float.parseFloat(accel_data[i+1]));
+                prev = (float) mKalmanPrev.update(Float.parseFloat(SVM[i]));
+                next = (float) mKalmanNext.update(Float.parseFloat(SVM[i+1]));
 
-                ivalue[i] = filteredY-filteredX;
-                                if(i == 1) //처음으로 받은 데이터의 시간
-                                    filesave(ivalue[i], original);
-                                else { //처음 이후 데이터는 시간 증가시키는 과정 추가
-                                    timestamp[i] = original + (49*(i-1));
-                                    filesave(ivalue[i], timestamp[i]);
-                                }
-                addEntry(ivalue[i], 0);
-                mX = filteredX;
-                mY = filteredY;
+                Ivalue[i] = next - prev;
+//                q.push(Ivalue[i]);
+
+                if(i == 1)                                  // 처음으로 받은 데이터의 시간
+                    saveFile(Ivalue[i], original);
+                else {                                      // 처음 이후 데이터는 시간 증가시키는 과정 추가
+                    timestamp[i] = original + (49*(i-1));
+                    saveFile(Ivalue[i], timestamp[i]);
+                }
+
+                addEntry(Ivalue[i], 0);
+                mPrev = prev;
+                mNext = next;
             }
             plotData = false;
         }
     }
 
-    public static void filesave(float filteredX, int accel_data){
-        String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
-        File path;    //저장 데이터가 존재하는 디렉토리경로
-        File file;     //파일명까지 포함한 경로
+    public static void saveFile(float filteredX, int accel_data){
+        String state = Environment.getExternalStorageState();   // 외부저장소(SDcard)의 상태 얻어오기
+        File path;                                              // 저장 데이터가 존재하는 디렉토리경로
+        File file;                                              // 파일명까지 포함한 경로
 
-        if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+        if(!state.equals(Environment.MEDIA_MOUNTED)){           // SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
             return;
         }
 
         path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        file= new File(path, "BandData.txt"); //파일명까지 포함함 경로의 File 객체 생성
-        try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
-            FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
+        file= new File(path, "BandData.txt");            // 파일명까지 포함함 경로의 File 객체 생성
+        try {                                                  // 데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
+            FileWriter wr= new FileWriter(file,true);  // 두번째 파라미터 true: 기존파일에 내용 이어쓰기
             PrintWriter writer= new PrintWriter(wr);
             writer.println(filteredX+ " " + accel_data);
             writer.close();

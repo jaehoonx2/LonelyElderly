@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.icu.text.IDNA;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        uri = Uri.EMPTY;
 
         //Using the Gyroscope & Accelometer
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -60,6 +60,12 @@ public class MainActivity extends AppCompatActivity {
                 mSensorManager.unregisterListener(mAccLis);
             }
         });
+
+        // 긴급연락처 세팅
+        if(InfoActivity.phoneNumLoad() != "")
+            uri = Uri.parse("tel:" + InfoActivity.phoneNumLoad());
+        else
+            uri = Uri.parse("tel:119");
     }
 
     @Override
@@ -76,62 +82,12 @@ public class MainActivity extends AppCompatActivity {
         mSensorManager.unregisterListener(mAccLis);
     }
 
-    private class AccelometerListener implements SensorEventListener {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            double accX = event.values[0];
-            double accY = event.values[1];
-            double accZ = event.values[2];
-
-            String a =String.format("%f" , accX);
-            String b =String.format("%f" , accY);
-            String c =String.format("%f" , accZ);
-
-            //Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            SimpleDateFormat time1 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
-            String time_data1 = time1.format(new Date()); //timestamp
-
-            //String message1 = a + " " + b + " " + c + " " + timestamp.getTime();
-            String message1 = a + " " + b + " " + c + " " + time_data1;
-
-            String state= Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
-            File path;    //저장 데이터가 존재하는 디렉토리경로
-            File file;     //파일명까지 포함한 경로
-
-            if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
-                return;
-            }
-
-            path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file= new File(path, "PhoneData.txt"); //파일명까지 포함함 경로의 File 객체 생성
-            try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
-                FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
-                PrintWriter writer= new PrintWriter(wr);
-                writer.println(message1);
-                writer.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            Log.e("LOG", "X:" + a + " Y:" + b + " Z:" + c + " " + time_data1);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-    }
-
     public void OnClick(View v){
         switch (v.getId()){
             case R.id.button_hrm : {
                 Intent intent = new Intent(getApplicationContext(), HRMActivity.class);
+                intent.putExtra("phoneNum", InfoActivity.phoneNumLoad());    // 연락처 정보 전달
 
-                // 심정지 시 긴급연락처 전송 (미지정 시 119)
-                if (uri != null && !uri.equals(Uri.EMPTY)) {
-                    intent.putExtra("uri", uri);
-                } else {
-                    intent.putExtra("uri", "119");
-                }
                 startActivityForResult(intent, REQUEST_CODE_HRM);
                 break;
             }
@@ -147,20 +103,13 @@ public class MainActivity extends AppCompatActivity {
             }
             case R.id.button_call : {
                 Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(uri);
 
-                if (InfoActivity.phoneNumLoad() != null) {
-                    Uri uri = Uri.parse("tel:" + InfoActivity.phoneNumLoad());
-                    intent.setData(uri);
-
-                    try {
-                        Toast.makeText(getApplicationContext(), "긴급 연락 기능 작동! 보호자에게 전화를 발신합니다.", Toast.LENGTH_LONG).show();
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                } else {
-                    Toast.makeText(getApplicationContext(), "긴급 연락처를 저장하십시오", Toast.LENGTH_SHORT).show();
+                try {
+                    Toast.makeText(getApplicationContext(), "긴급 연락 기능 작동! 보호자에게 전화를 발신합니다.", Toast.LENGTH_LONG).show();
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
 
                 break;
@@ -195,6 +144,51 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
             else if (requestCode == REQUEST_CODE_INFO)
                 Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private class AccelometerListener implements SensorEventListener {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            double accX = event.values[0];
+            double accY = event.values[1];
+            double accZ = event.values[2];
+
+            String a =String.format("%f" , accX);
+            String b =String.format("%f" , accY);
+            String c =String.format("%f" , accZ);
+
+            //Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            SimpleDateFormat time1 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
+            String time_data1 = time1.format(new Date()); //timestamp
+
+            //String message1 = a + " " + b + " " + c + " " + timestamp.getTime();
+            String message1 = a + " " + b + " " + c + " " + time_data1;
+
+            String state = Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
+            File path;    //저장 데이터가 존재하는 디렉토리경로
+            File file;     //파일명까지 포함한 경로
+
+            if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
+                return;
+            }
+
+            path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            file= new File(path, "PhoneData.txt"); //파일명까지 포함함 경로의 File 객체 생성
+            try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
+                FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
+                PrintWriter writer= new PrintWriter(wr);
+                writer.println(message1);
+                writer.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            Log.e("LOG", "X:" + a + " Y:" + b + " Z:" + c + " " + time_data1);
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     }
 }
