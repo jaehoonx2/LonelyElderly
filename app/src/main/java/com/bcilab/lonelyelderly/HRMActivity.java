@@ -49,6 +49,7 @@ public class HRMActivity extends AppCompatActivity {
 
     static boolean isHeartAttack = false;
     Vibrator vibrator;
+    static long start, end;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +123,6 @@ public class HRMActivity extends AppCompatActivity {
         }
     }
 
-
     private final ServiceConnection mConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -143,15 +143,8 @@ public class HRMActivity extends AppCompatActivity {
             case R.id.buttonConnect: {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
+                    start = System.currentTimeMillis();
                 }
-//                if(isFirstConnect) {
-//                    try {
-//                        Thread.sleep(10000);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    isFirstConnect = false;
-//                }
                 break;
             }
             case R.id.buttonDisconnect: {
@@ -163,6 +156,7 @@ public class HRMActivity extends AppCompatActivity {
 
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
+                        start = end = 0;
                         updateStatus("Disconnected");
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                     }
@@ -207,8 +201,12 @@ public class HRMActivity extends AppCompatActivity {
     }
 
     // 심박수 그래프 그리기 & 수치 나타내기
-
     public static void updateHeartBPM(final String str) {
+        end = System.currentTimeMillis();
+        if(end - start < 10000) {
+            heartBPM.setText("측정 대기중");
+            return;
+        }
 
         String[] data = str.split("\\s");
 
@@ -217,44 +215,65 @@ public class HRMActivity extends AppCompatActivity {
 
         if(plotData){
             switch (data[0]){
-                case "-3" :
-                            heartBPM.setText(data[0]);
-                            updateStatus("밴드 탈착");
-                            if(detectThread != null)
-                                detectThread.interrupt();
+                case "-3" : {
+                                isHeartAttack = false;                  // 탈착 상황
+                                heartBPM.setText("미착용");
+                                updateStatus("밴드 탈착");
+//                                if (detectThread != null)
+//                                    detectThread.interrupt();
 
-                            break;
-                case "0" :
-                            // 착용자의 움직임이 있는지 확인하는 프로세스
-                            float isum = 0.0f;
-                            for (int i = 0; i < SVM.length - 1; i++)
-                                isum += Float.parseFloat(SVM[i + 1]) - Float.parseFloat(SVM[i]);
-                            float iavg = Math.abs(isum / (SVM.length - 1));
+                                break;
+                           }
+                case "0" : {
+                                if(isHeartAttack){
+                                    heartBPM.setText(data[0]);
+                                    addEntry(Integer.parseInt(data[0]));
+                                    break;
+                                }
 
-                            if (iavg > 0.04) {                  // 심정지 상황 - 미세함 움직임 감지
-                                isHeartAttack = true;
+                                if (checkMove()) {                      // 센서 에러 의심 - bpm - 0 이지만 움직임 감지
+                                    isHeartAttack = false;
 
+                                    heartBPM.setText(data[0]);
+                                    updateStatus("센서 이상 의심");
+//                                    if (detectThread != null)
+//                                        detectThread.interrupt();
+                                } else {                                // 심정지 의심 - bpm 0이면서 부동 자세
+                                    isHeartAttack = true;
+
+                                    heartBPM.setText(data[0]);
+                                    addEntry(Integer.parseInt(data[0]));
+                                    updateStatus("심정지 의심");
+                                    if (detectThread == null)
+                                        startDetect();
+                                }
+
+                                break;
+                          }
+                default : {
+                                isHeartAttack = false;                  // 일반 상황
+                                updateStatus("심박수 모니터링중");
                                 heartBPM.setText(data[0]);
                                 addEntry(Integer.parseInt(data[0]));
-                                updateStatus("심정지 의심");
-                                if (detectThread == null)
-                                    startDetect();
-                            } else {                            // 탈착 의심 상황 - 부동자세
-                                if(!isHeartAttack) {
-                                    heartBPM.setText(data[0]);
-                                    updateStatus("밴드 탈착");
-                                    if (detectThread != null)
-                                        detectThread.interrupt();
-                                }
-                            }
-                            break;
-                default :
-                    updateStatus("");
-                    heartBPM.setText(data[0]);
-                    addEntry(Integer.parseInt(data[0]));
-            }
+                          }
+                }
             plotData = false;
         }
+    }
+
+    private static boolean checkMove(){
+        // 착용자의 움직임이 있는지 확인
+        // 움직임이 있으면 true 반환
+        // 탈착상황이 의심되면 false 반환
+        float isum = 0.0f;
+        for (int i = 0; i < SVM.length - 1; i++)
+            isum += Math.abs(Float.parseFloat(SVM[i + 1]) - Float.parseFloat(SVM[i]));
+        float iavg = isum / (SVM.length - 1);
+
+        if(iavg > 0.04)
+            return true;
+        else
+            return false;
     }
 
     // LineChart startDetect()
@@ -277,7 +296,7 @@ public class HRMActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    if(heartBPM.getText().toString() == "0") {
+                    if(isHeartAttack) {
                         result = -1;
                         continue;
                     } else {

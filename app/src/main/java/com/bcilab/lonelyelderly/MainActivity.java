@@ -30,36 +30,10 @@ public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_FALL = 103;
     public static Uri uri;
 
-    //Using the Accelometer & Gyroscoper
-    private SensorManager mSensorManager = null;
-    //Using the Accelometer
-    private SensorEventListener mAccLis;
-    private Sensor accel_data = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //Using the Gyroscope & Accelometer
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        //Using the Accelometer
-        accel_data = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mAccLis = new AccelometerListener();
-
-        findViewById(R.id.button_connect).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSensorManager.registerListener(mAccLis, accel_data, SensorManager.SENSOR_DELAY_UI);
-            }
-        });
-
-        findViewById(R.id.button_disconnect).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mSensorManager.unregisterListener(mAccLis);
-            }
-        });
 
         // 긴급연락처 세팅
         if(InfoActivity.phoneNumLoad() != "")
@@ -72,14 +46,12 @@ public class MainActivity extends AppCompatActivity {
     public void onPause(){
         super.onPause();
         Log.e("LOG", "onPause()");
-        //mSensorManager.unregisterListener(mAccLis);
     }
 
     @Override
     public void onDestroy(){
         super.onDestroy();
         Log.e("LOG", "onDestroy()");
-        mSensorManager.unregisterListener(mAccLis);
     }
 
     public void OnClick(View v){
@@ -144,51 +116,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
             else if (requestCode == REQUEST_CODE_INFO)
                 Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private class AccelometerListener implements SensorEventListener {
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            double accX = event.values[0];
-            double accY = event.values[1];
-            double accZ = event.values[2];
-
-            String a =String.format("%f" , accX);
-            String b =String.format("%f" , accY);
-            String c =String.format("%f" , accZ);
-
-            //Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-            SimpleDateFormat time1 = new SimpleDateFormat("HH:mm:ss.SSS"); //timestamp
-            String time_data1 = time1.format(new Date()); //timestamp
-
-            //String message1 = a + " " + b + " " + c + " " + timestamp.getTime();
-            String message1 = a + " " + b + " " + c + " " + time_data1;
-
-            String state = Environment.getExternalStorageState(); //외부저장소(SDcard)의 상태 얻어오기
-            File path;    //저장 데이터가 존재하는 디렉토리경로
-            File file;     //파일명까지 포함한 경로
-
-            if(!state.equals(Environment.MEDIA_MOUNTED)){ //SDcard 의 상태가 쓰기 가능한 상태로 마운트되었는지 확인
-                return;
-            }
-
-            path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            file= new File(path, "PhoneData.txt"); //파일명까지 포함함 경로의 File 객체 생성
-            try { //데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
-                FileWriter wr= new FileWriter(file,true); //두번째 파라미터 true: 기존파일에 내용 이어쓰기
-                PrintWriter writer= new PrintWriter(wr);
-                writer.println(message1);
-                writer.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            Log.e("LOG", "X:" + a + " Y:" + b + " Z:" + c + " " + time_data1);
-        }
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
         }
     }
 }

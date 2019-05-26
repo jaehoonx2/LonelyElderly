@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,7 +9,42 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/bcilab" />
+        <TextView
+            android:id="@+id/titleKor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:text="상용스마트밴드를 활용한 응급상황 감지 앱"
+            android:textColor="#ffffff"
+            android:textSize="20dp"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
+        <TextView
+            android:id="@+id/titleEng"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="Emergency Detection App"
+            android:textColor="#ffffff"
+            android:textSize="25dp"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="8dp"
@@ -103,45 +139,4 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        android:orientation="horizontal"
-        android:layout_weight="1">
-
-        <Button
-            android:id="@+id/button_connect"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:textColor="#ffffff"
-            android:background="@drawable/button_background"
-            android:drawableTop="@drawable/band_connect"
-            android:onClick="OnClick"
-            android:padding="20dp"
-            android:text="휴대폰 데이터 수집"
-            android:textSize="17dp"
-            android:fontFamily="@font/bmhanna_11yrs_ttf"
-            />
-
-        <Button
-            android:id="@+id/button_disconnect"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="5dp"
-            android:textColor="#ffffff"
-            android:layout_weight="1"
-            android:background="@drawable/button_background"
-            android:drawableTop="@drawable/band_disconnect"
-            android:onClick="OnClick"
-            android:padding="20dp"
-            android:text="데이터 수집 종료"
-            android:textSize="17dp"
-            android:fontFamily="@font/bmhanna_11yrs_ttf"
-            />
-
-    </LinearLayout>
 </LinearLayout>

@@ -1,10 +1,13 @@
 package com.bcilab.lonelyelderly;
 
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -13,10 +16,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
-import java.util.*;
-
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.YAxis;
@@ -32,8 +31,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Queue;
-import java.util.ArrayDeque;
 
 public class FallActivity extends AppCompatActivity {
     private static final String TAG = "FallActivity";
@@ -48,7 +45,9 @@ public class FallActivity extends AppCompatActivity {
 
     private static Kalman mKalmanPrev;      // Kalman filter t value
     private static Kalman mKalmanNext;      // Karlam filter t+1 value
-    private static float mPrev, mNext;     // Variable to save previous Kalman filter value
+    private static float mPrev, mNext;      // Variable to save previous Kalman filter value
+
+    public static Queue queue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +55,7 @@ public class FallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fall);
         statusText = (TextView) findViewById(R.id.statusText);
         accel = (TextView) findViewById(R.id.accel);
+        queue = new com.bcilab.lonelyelderly.Queue(100);
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -156,80 +156,12 @@ public class FallActivity extends AppCompatActivity {
                 finish();
                 break;
             }
-            case R.id.test: {
-                SimpleDateFormat logFormat = new SimpleDateFormat("HH:mm:ss.SSS");  // timestamp
-                String startTime = logFormat.format(new Date());                            // timestamp
-                Log.i(TAG, "TEST start" + " " + startTime);
-                break;
-            }
-            default:
         }
     }
 
     // 모니터링 상태 표시
     public static void updateStatus(final String str) {
         statusText.setText(str);
-    }
-
-    public class Queue<E> {
-        E[] arr;
-        int head = -1;
-        int tail = -1;
-        int size;
-
-    public Queue(Class < E > c, int size){
-            E[] newInstance = (E[]) Array.newInstance(c, size);
-            this.arr = newInstance;
-            this.size = 0;
-        }
-
-        boolean push (E e){
-            if (size == arr.length)
-                return false;
-
-            head = (head + 1) % arr.length;
-            arr[head] = e;
-            size++;
-
-            if (tail == -1) {
-                tail = head;
-            }
-
-            return true;
-        }
-
-        boolean pop () {
-            if (size == 0) {
-                return false;
-            }
-
-            E result = arr[tail];
-            arr[tail] = null;
-            size--;
-            tail = (tail + 1) % arr.length;
-
-            if (size == 0) {
-                head = -1;
-                tail = -1;
-            }
-
-            return true;
-        }
-
-        E peek () {
-            if (size == 0)
-                return null;
-
-            return arr[tail];
-        }
-
-        public int size () {
-            return this.size;
-        }
-
-        public String toString () {
-            return Arrays.toString(this.arr);
-        }
     }
 
     // 가속도 데이터 받아오기 및 그래프 그리기
@@ -239,8 +171,6 @@ public class FallActivity extends AppCompatActivity {
         float prev = 0.0f;                                 // variable to apply Kalman filter
         float next = 0.0f;
 
-//        Queue<Float> q = new Queue<Float>(Integer.class, 5);
-//
         if(plotData){
             for(int i = 1; i < 10; i++) {
                 int[] timestamp = new int[9];
@@ -251,7 +181,14 @@ public class FallActivity extends AppCompatActivity {
                 next = (float) mKalmanNext.update(Float.parseFloat(SVM[i+1]));
 
                 Ivalue[i] = next - prev;
-//                q.push(Ivalue[i]);
+
+                synchronized (queue){
+                    if(queue.getRear() == queue.getCapacity()) {
+                        queue.Dequeue();
+                        queue.Enqueue(Ivalue[i]);
+                    } else
+                        queue.Enqueue(Ivalue[i]);
+                }
 
                 if(i == 1)                                  // 처음으로 받은 데이터의 시간
                     saveFile(Ivalue[i], original);
@@ -266,6 +203,48 @@ public class FallActivity extends AppCompatActivity {
             }
             plotData = false;
         }
+    }
+
+    private AlertDialog makeEmergencyDialog(){
+        /* makeEmergencyDialog
+         * 심정지 알림상자
+         * 제목 : 긴급
+         * 내용 : 심정지 감지 (무반응 시 10초 후 자동연락)
+         * 연락 버튼 누를 시 - 긴급연락처로 전화 걸기
+         * 취소 버튼 누를 시 - isFirstZero 초기화 (DetectThread 재활용을 위해)
+         */
+        AlertDialog.Builder emergencyDialog;
+        String str = getIntent().getStringExtra("phoneNum");
+        final Uri uri = Uri.parse("tel:" + str);
+
+        emergencyDialog = new AlertDialog.Builder(this);
+        emergencyDialog.setTitle("긴급");
+        emergencyDialog.setMessage("낙상 감지");
+
+        emergencyDialog.setPositiveButton("연락", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Hard Coded : should be modified later
+
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
+
+        emergencyDialog.setNegativeButton("취소(앱 종료)", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 앱 종료
+                moveTaskToBack(true);
+                finish();
+                android.os.Process.killProcess(android.os.Process.myPid());
+            }
+        });
+
+        // To do list
+        // 알림 상자 팝업 시 진동과 벨소리 기능 추가 - 진동 추가됨
+        return emergencyDialog.show();
     }
 
     public static void saveFile(float filteredX, int accel_data){
