@@ -55,7 +55,7 @@ public class FallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fall);
         statusText = (TextView) findViewById(R.id.statusText);
         accel = (TextView) findViewById(R.id.accel);
-        queue = new com.bcilab.lonelyelderly.Queue(100);
+        queue = new com.bcilab.lonelyelderly.Queue(20);
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -182,13 +182,11 @@ public class FallActivity extends AppCompatActivity {
 
                 Ivalue[i] = next - prev;
 
-                synchronized (queue){
-                    if(queue.getRear() == queue.getCapacity()) {
-                        queue.Dequeue();
-                        queue.Enqueue(Ivalue[i]);
-                    } else
-                        queue.Enqueue(Ivalue[i]);
-                }
+                if(queue.isFull()) {
+                    queue.Dequeue();
+                    queue.Enqueue(Ivalue[i]);
+                } else
+                    queue.Enqueue(Ivalue[i]);
 
                 if(i == 1)                                  // 처음으로 받은 데이터의 시간
                     saveFile(Ivalue[i], original);
