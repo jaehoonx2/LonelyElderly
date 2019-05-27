@@ -1,28 +1,13 @@
 package com.bcilab.lonelyelderly;
 
-import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import android.icu.text.IDNA;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_HRM = 101;
@@ -70,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
             case R.id.button_fall : {
                 Intent intent = new Intent(getApplicationContext(), FallActivity.class);
+                intent.putExtra("phoneNum", InfoActivity.phoneNumLoad());    // 연락처 정보 전달
+
                 startActivityForResult(intent, REQUEST_CODE_FALL);
                 break;
             }
@@ -116,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
             else if (requestCode == REQUEST_CODE_INFO)
                 Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
+            else if(requestCode == REQUEST_CODE_FALL)
+                Toast.makeText(getApplicationContext(), "return from FallActivity", Toast.LENGTH_SHORT).show();
         }
     }
 }

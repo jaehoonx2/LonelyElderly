@@ -10,7 +10,10 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
@@ -44,7 +47,11 @@ public class FallActivity extends AppCompatActivity {
     private static Kalman mKalmanNext;      // Karlam filter t+1 value
     private static float mPrev, mNext;      // Variable to save previous Kalman filter value
 
+    private static DetectHandler detectHandler;
+    private static Thread detectThread;
     public static Queue queue;
+
+    Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,8 @@ public class FallActivity extends AppCompatActivity {
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
+        detectHandler = new DetectHandler();
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         // Kalman Filter Initialize
         mKalmanPrev = new Kalman(0.0f);
@@ -82,8 +91,12 @@ public class FallActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
 
-        if (graphThread != null) {
+        if(graphThread != null){
             graphThread.interrupt();
+        }
+
+        if(detectThread != null){
+            detectThread.interrupt();
         }
     }
 
@@ -96,7 +109,13 @@ public class FallActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        graphThread.interrupt();
+        if(graphThread != null){
+            graphThread.interrupt();
+        }
+
+        if(detectThread != null){
+            detectThread.interrupt();
+        }
 
         // Clean up connections
         if (mIsBound == true && mConnectionService != null) {
@@ -133,10 +152,17 @@ public class FallActivity extends AppCompatActivity {
                     mConnectionService.findPeers();
                     accel.setText("측정중");
                     updateStatus("Connected");
+                    startDetect();
                 }
                 break;
             }
             case R.id.buttonDisconnect: {
+                if(graphThread != null)
+                    graphThread.interrupt();
+
+                if(detectThread != null)
+                    detectThread.interrupt();
+
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
                         updateStatus("Disconnected");
@@ -148,6 +174,12 @@ public class FallActivity extends AppCompatActivity {
                 break;
             }
             case R.id.buttonBack: {
+                if(graphThread != null)
+                    graphThread.interrupt();
+
+                if(detectThread != null)
+                    detectThread.interrupt();
+
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
@@ -199,6 +231,117 @@ public class FallActivity extends AppCompatActivity {
             plotData = false;
         }
     }
+
+    // LineChart startDetect()
+    private static void startDetect(){
+
+        if(detectThread != null){
+            // detectThread.interrupt();
+            return;
+        }
+
+        detectThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                double th = 15.0f;      // 임계값
+                int detection = 0;      // 임계값 초과값에 대한 감지 횟수 ex. 5회를 넘어서면 격한 행동
+                boolean monitoring = true;
+                long start = 0;
+                long end;
+
+                while(monitoring) {
+                    // 큐가 꽉 안찼으면 찰 때까지 대기함
+                    while (!queue.isFull()) {
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    // 임계점 넘어가면 detection++
+                    if (queue.getAbsSum() > th) {
+                        detection++;
+                        // 최초 감지면 타임스탬프 마크
+                        if (detection == 0)
+                            start = System.currentTimeMillis();
+
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    // 타임스탬프가 존재하면 경과 시간 확인
+                    if(start != 0) {
+                        end = System.currentTimeMillis();
+                        if (end - start < 5000)             // 5초 미만이면 패스
+                            continue;
+                        else if (detection < 5) {           // 큰 움직임이 5회 미만 감지 - 낙상
+                            // 낙상 의심
+                            updateStatus("낙상 의심");
+                            monitoring = false;
+                        } else {                            // 5회 이상 감지 - 걷기 혹은 달리기 등의 행동
+                            // detection 초기화
+                            // start 초기화
+                            detection = 0;
+                            start = 0;
+                        }
+                    }
+                }
+
+                Message message = detectHandler.obtainMessage();
+                Bundle bundle = new Bundle();
+                bundle.putInt("emergency", -1);
+                message.setData(bundle);
+                detectHandler.sendMessage(message);
+            }
+        });
+
+        detectThread.start();
+    }
+
+    class DetectHandler extends Handler {
+
+        /* millisecond
+         * vibe_pattern[odd] : waiting time
+         * vibe_pattern[even] : vibrating time
+         */
+        long[] vibe_pattern = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
+                100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
+
+        // 받은 메시지를 통해 경과시간 혹은 알림 상자 띄우기
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            Bundle bundle = msg.getData();
+            int elapsed = bundle.getInt("emergency");
+
+            if(elapsed != -1)
+                statusText.setText("낙상 의심");
+
+            // 0 : infinity, -1 : only once
+            // 10초 간 진동-off 시작
+            makeEmergencyDialog();
+            vibrator.vibrate(vibe_pattern, -1);
+
+            try {
+                Thread.sleep(10000);
+
+                String str = getIntent().getStringExtra("phoneNum");
+                final Uri uri = Uri.parse("tel:" + str);
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(uri);
+                startActivity(intent);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private AlertDialog makeEmergencyDialog(){
         /* makeEmergencyDialog
