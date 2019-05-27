@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="8dp"
-        android:layout_weight="1"
+        android:layout_weight="1.1"
         android:orientation="vertical" >
 
         <ImageView
@@ -20,40 +20,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
+            android:layout_marginTop="40dp"
             android:layout_gravity="center"
             app:srcCompat="@drawable/bcilab" />
+
         <TextView
             android:id="@+id/titleKor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="10dp"
             android:layout_weight="0.5"
-            android:text="상용스마트밴드를 활용한 응급상황 감지 앱"
+            android:fontFamily="@font/bmhanna_11yrs_ttf"
+            android:text="스마트밴드를 활용한 응급상황 감지 앱"
             android:textColor="#ffffff"
-            android:textSize="20dp"
-            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
-        <TextView
-            android:id="@+id/titleEng"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="Emergency Detection App"
-            android:textColor="#ffffff"
-            android:textSize="25dp"
-            android:fontFamily="@font/bmhanna_11yrs_ttf"/>
+            android:textSize="23dp" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
-        android:layout_weight="1"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_weight="1.1"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/button_hrm"
-            android:layout_width="129dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
@@ -61,9 +56,9 @@
             android:drawableTop="@drawable/heart_rate"
             android:onClick="OnClick"
             android:padding="20dp"
-            android:text="심박수 감지"
+            android:text="심박수\n감지"
             android:textColor="#ffffff"
-            android:textSize="25dp"
+            android:textSize="30dp"
             android:fontFamily="@font/bmhanna_11yrs_ttf"/>
 
         <Button
@@ -77,18 +72,19 @@
             android:drawableTop="@drawable/band_connect"
             android:onClick="OnClick"
             android:padding="20dp"
-            android:text="낙상 감지"
-            android:textSize="25dp"
+            android:text="낙상\n감지"
+            android:textSize="30dp"
             android:fontFamily="@font/bmhanna_11yrs_ttf"/>
-
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
         android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_weight="1.1">
 
         <Button
             android:id="@+id/button_info"
@@ -100,9 +96,9 @@
             android:background="@drawable/button_background"
             android:drawableTop="@drawable/phonebook"
             android:onClick="OnClick"
-            android:padding="10dp"
-            android:text="정보 수정"
-            android:textSize="20dp"
+            android:paddingTop="30dp"
+            android:text="정보수정"
+            android:textSize="25dp"
             android:fontFamily="@font/bmhanna_11yrs_ttf"/>
 
         <Button
@@ -115,9 +111,9 @@
             android:background="@drawable/button_background"
             android:drawableTop="@drawable/power_off"
             android:onClick="OnClick"
-            android:padding="10dp"
+            android:paddingTop="30dp"
             android:text="앱 종료"
-            android:textSize="20dp"
+            android:textSize="25dp"
             android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 
@@ -131,9 +127,9 @@
             android:background="@drawable/button_background"
             android:drawableTop="@drawable/telephone"
             android:onClick="OnClick"
-            android:padding="10dp"
-            android:text="긴급 연락"
-            android:textSize="20dp"
+            android:paddingTop="30dp"
+            android:text="긴급연락"
+            android:textSize="25dp"
             android:fontFamily="@font/bmhanna_11yrs_ttf"
             />
 

@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,8 +28,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class FallActivity extends AppCompatActivity {
     private static final String TAG = "FallActivity";
@@ -168,34 +165,34 @@ public class FallActivity extends AppCompatActivity {
     public static void updateAccel(final String str) {
         final String[] SVM = str.split("\\s");
 
+        float Ivalue;                                      // next - prev
         float prev = 0.0f;                                 // variable to apply Kalman filter
         float next = 0.0f;
 
         if(plotData){
             for(int i = 1; i < 10; i++) {
-                int[] timestamp = new int[9];
-                float[] Ivalue = new float[9];             // next - prev
-                int original = Integer.parseInt(SVM[11]);
+//                int[] timestamp = new int[9];
+//                float[] Ivalue = new float[9];             // next - prev
+//                int original = Integer.parseInt(SVM[11]);
 
                 prev = (float) mKalmanPrev.update(Float.parseFloat(SVM[i]));
                 next = (float) mKalmanNext.update(Float.parseFloat(SVM[i+1]));
-
-                Ivalue[i] = next - prev;
+                Ivalue = next - prev;
 
                 if(queue.isFull()) {
                     queue.Dequeue();
-                    queue.Enqueue(Ivalue[i]);
+                    queue.Enqueue(Ivalue);
                 } else
-                    queue.Enqueue(Ivalue[i]);
+                    queue.Enqueue(Ivalue);
 
-                if(i == 1)                                  // 처음으로 받은 데이터의 시간
-                    saveFile(Ivalue[i], original);
-                else {                                      // 처음 이후 데이터는 시간 증가시키는 과정 추가
-                    timestamp[i] = original + (49*(i-1));
-                    saveFile(Ivalue[i], timestamp[i]);
-                }
+//                if(i == 1)                                  // 처음으로 받은 데이터의 시간
+//                    saveFile(Ivalue[i], original);
+//                else {                                      // 처음 이후 데이터는 시간 증가시키는 과정 추가
+//                    timestamp[i] = original + (49*(i-1));
+//                    saveFile(Ivalue[i], timestamp[i]);
+//                }
 
-                addEntry(Ivalue[i], 0);
+                addEntry(Ivalue, 0);
                 mPrev = prev;
                 mNext = next;
             }
@@ -205,11 +202,11 @@ public class FallActivity extends AppCompatActivity {
 
     private AlertDialog makeEmergencyDialog(){
         /* makeEmergencyDialog
-         * 심정지 알림상자
+         * 낙상 감지 알림상자
          * 제목 : 긴급
-         * 내용 : 심정지 감지 (무반응 시 10초 후 자동연락)
+         * 내용 : 낙상 의심
          * 연락 버튼 누를 시 - 긴급연락처로 전화 걸기
-         * 취소 버튼 누를 시 - isFirstZero 초기화 (DetectThread 재활용을 위해)
+         * 취소 버튼 누를 시 - 앱 종료
          */
         AlertDialog.Builder emergencyDialog;
         String str = getIntent().getStringExtra("phoneNum");
@@ -217,7 +214,7 @@ public class FallActivity extends AppCompatActivity {
 
         emergencyDialog = new AlertDialog.Builder(this);
         emergencyDialog.setTitle("긴급");
-        emergencyDialog.setMessage("낙상 감지");
+        emergencyDialog.setMessage("낙상 의심");
 
         emergencyDialog.setPositiveButton("연락", new DialogInterface.OnClickListener() {
             @Override
@@ -323,23 +320,10 @@ public class FallActivity extends AppCompatActivity {
 
     // LineChart createSet()
     private static LineDataSet createSet(int order){
+        // order 필요 없어짐 - 수정해야 함
         LineDataSet set;
-        int color = colors[order % colors.length];
-        switch(order){
-            case 0 :
-                set = new LineDataSet(null, "x");
-                set.setColor(color);
-                break;
-            case 1 :
-                set = new LineDataSet(null, "y");
-                set.setColor(color);
-                break;
-            default:
-                set = new LineDataSet(null, "z");
-                set.setColor(color);
-                break;
-        }
-
+        set = new LineDataSet(null, "SVM Variation");
+        set.setColor(colors[1]);
         set.setLineWidth(2.5f);
         set.setDrawCircles(false);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
