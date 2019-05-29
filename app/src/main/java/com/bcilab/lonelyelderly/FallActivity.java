@@ -47,13 +47,17 @@ public class FallActivity extends AppCompatActivity {
     private static String[] SVM;
     private static Kalman mKalmanPrev;      // Kalman filter t value
     private static Kalman mKalmanNext;      // Karlam filter t+1 value
-    private static float mPrev, mNext;      // Variable to save previous Kalman filter value
+//    private static float mPrev, mNext;    // Variable to save previous Kalman filter value
 
     public static Queue queue;
     private static DetectHandler detectHandler;
     private static Thread detectThread;
-
-
+    private static boolean isFirstDetect = true;
+    static long start = 0;
+    static long end;
+    static int global_det = 0;              // 얼마나 낙상 의심 큐가 들어왓는지 횟수
+    static int negative = 0;                // 비정상적으로 미세한 움직임
+    static int positive = 0;                // 낙상 후 비정상적인 큰 움직임
     Vibrator vibrator;
 
     @Override
@@ -72,7 +76,7 @@ public class FallActivity extends AppCompatActivity {
         mKalmanPrev = new Kalman(0.0f);
         mKalmanNext = new Kalman(0.0f);
         SVM = new String[20];
-        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 5.0f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
+        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 4.3f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
 
         // Real-time Line Chart
         mChart = (LineChart) findViewById(R.id.chart1);
@@ -155,8 +159,7 @@ public class FallActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
                     accel.setText("측정중");
-                    updateStatus("Connected");
-                    //startDetect();
+//                    updateStatus("Connected");
                 }
                 break;
             }
@@ -198,23 +201,19 @@ public class FallActivity extends AppCompatActivity {
 
     // 가속도 데이터 받아오기 및 그래프 그리기
     public static void updateAccel(final String str) {
+        float Ivalue, prev, next;                             // variable to apply Kalman filter
         String[] data = str.split("\\s");
-        int det = 0;
+//        int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
 
-        int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
         for(int i = 0; i < SVM.length; i++)                   // SVM[20]
             SVM[i] = data[i+1];
-
-        float Ivalue;                                      // next - prev
-        float prev = 0.0f;                                 // variable to apply Kalman filter
-        float next = 0.0f;
 
         if(plotData){
             for(int i = 0; i < SVM.length - 1; i++) {
                 prev = (float) mKalmanPrev.update(Float.parseFloat(SVM[i]));
                 next = (float) mKalmanNext.update(Float.parseFloat(SVM[i+1]));
-                Ivalue = next - prev;
 
+                Ivalue = next - prev;
                 if(queue.isFull()) {
                     queue.Dequeue();
                     queue.Enqueue(Ivalue);
@@ -222,129 +221,86 @@ public class FallActivity extends AppCompatActivity {
                     queue.Enqueue(Ivalue);
 
                 addEntry(Ivalue, 0);
-                saveFile(Ivalue, timestamp + (49*i));
+//                saveFile(Ivalue, timestamp + (49*i));
 
-                mPrev = prev;
-                mNext = next;
+//                mPrev = prev;
+//                mNext = next;
             }
             plotData = false;
         }
 
-        det = queue.getDiffNum();
+        // det란? 한 큐 안에서 th를 넘는 횟수
+        int det = queue.getNumOverTH();
 
-        if(det == 1) {
-            updateStatus("낙상 의심");
-            Log.e(TAG, "낙상의심상황"+ String.valueOf(det));
-            Message message = detectHandler.obtainMessage();
-            Bundle bundle = new Bundle();
-            bundle.putInt("emergency", -1);
-            message.setData(bundle);
-            detectHandler.sendMessage(message);
-            detectThread.start();
+        switch(det){
+            case 0 :    // 한번도 th 초과 하지 않은 경우
+                        updateStatus("평상시");
+                        break;
+            case 1 :
+            //case 2 :    // 한두번 정도 초과함 - 의심 여지 있음
+                        updateStatus("낙상 의심");
+                        Log.e(TAG, "낙상 의심, detNum :"+ String.valueOf(det));
+
+                        if(isFirstDetect){
+                            isFirstDetect = false;
+                            start = System.currentTimeMillis();
+                        }
+                        global_det++;
+
+                        break;
+            default :   // 다수 검출 - 오인 행동 가능성
+                        updateStatus("오인 행동");
+                        Log.e(TAG, "오인 행동, detNum :" + String.valueOf(det));
         }
-        else if(det ==0)
-            updateStatus("비낙상");
-        else if(det >=2) {
-            updateStatus("오인 행동");
-            Log.e(TAG, "오인 행동"+ String.valueOf(det));
-            det=0;
+
+        // 낙상 의심 행동일 경우
+        if(start != 0) {
+            end = System.currentTimeMillis();
+
+            // 6초 경과하지 않았으면 낙상 이후의...
+            if (end - start < 5600) {
+                // 미세한 움직임의 유무 체크
+                if(queue.getAbsAverage() < 1.1)
+                    negative++;
+                // 격한 움직임의 유무 체크
+                else if(queue.getAbsAverage() > 1.3)
+                    positive++;
+
+                return;
+            }
+            // 6초가 경과했으면 최종 낙상 판단 매커니즘에 돌입
+            else {
+                start = 0;
+
+                if (global_det > 2)
+                    updateStatus("최종 오인 행동");
+                else if(negative == 0){ // 미세한 움직임 있다는 얘기?
+                    updateStatus("최종 오인 행동");
+                } else if(positive != 0){
+                    updateStatus("최종 오인 행동");
+                } else {
+                    updateStatus("최종 낙상 상황");
+                    startDetect();
+                }
+
+                isFirstDetect = true;
+                global_det = 0;
+                negative = 0;
+            }
         }
-        det=0;
     }
 
     // LineChart startDetect()
     private static void startDetect(){
 
-        if(detectThread != null){
-            // detectThread.interrupt();
-            return;
-        }
+//        if(detectThread != null){
+//            // detectThread.interrupt();
+//            return;
+//        }
 
         detectThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                final double th = 6.0f;       // 임계값
-                int detection = 0;            // 임계값 초과 감지 횟수
-
-                boolean monitoring = true;    // default : true, 낙상 감지시 : false (모니터링을 해제하고 연락기능으로 들어가므로)
-
-                long start = 0;               // 최초 감지 시 타임스탬프
-                long end;
-
-                while(monitoring) {
-
-
-                    /*
-                    // 큐가 꽉 안찼으면 찰 때까지 대기함
-                    while (!queue.isFull()) {
-                        try {
-                            Thread.sleep(1000);                 // 밴드와 스마트폰 간 수신 간격은 약 1100ms
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-
-                    // 임계점 넘어가면 detection++
-                    if (queue.getAbsSum() > th) {
-                        detection++;
-
-                        queue.setEmpty();
-
-                        // 최초 감지면 타임스탬프 마크
-                        if (detection == 1)
-                            start = System.currentTimeMillis();
-//                        try {
-//                            Thread.sleep(1000);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-                    }
-
-                    // 타임스탬프가 존재하면 경과 시간 확인
-                    if(start != 0) {
-                        end = System.currentTimeMillis();
-
-                        if (end - start < 10000)
-                            continue;
-
-                        if (detection > 3){
-                            // detection 초기화
-                            // start 초기화
-                            updateStatus("격렬한 활동");
-                            detection = 0;
-                            start = 0;
-                        } else {
-                            // 낙상 의심
-                            updateStatus("낙상 의심");
-                            monitoring = false;
-                        }
-                    }
-*/
-                    /*int a=0;
-                    end = System.currentTimeMillis();
-                    if(start != 0) {
-                        if (end - start < 10000) {
-                            if (detection == 1 || detection == 2) {
-                                a = 2;
-                            } else if (detection == 3) {
-                                a = 3;
-                            }
-                        }
-                    }
-
-                    if(end- start >=1000 && a ==2){
-                        // 낙상 의심
-                        updateStatus("낙상 의심");
-                        monitoring = false;
-                    }
-                    else if(end- start >=1000 && a ==3){
-                        updateStatus("격렬한 활동");
-                        detection = 0;
-                        start = 0;
-                    }*/
-
-                }
                 Message message = detectHandler.obtainMessage();
                 Bundle bundle = new Bundle();
                 bundle.putInt("emergency", -1);
@@ -383,7 +339,7 @@ public class FallActivity extends AppCompatActivity {
 
             vibrator.vibrate(vibe_pattern, -1);
 
-            /*try {
+            try {
                 Thread.sleep(10000);
 
                 String str = getIntent().getStringExtra("phoneNum");
@@ -393,7 +349,7 @@ public class FallActivity extends AppCompatActivity {
                 startActivity(intent);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            }
         }
     }
 

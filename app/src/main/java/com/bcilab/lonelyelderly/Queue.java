@@ -16,16 +16,17 @@ class Queue {
 
     public synchronized void setEmpty() { front = rear = 0; }
 
-    public int getDiffNum(){
+    public int getNumOverTH(){
         int num = 0;
 
         if(isEmpty())
             return num;
 
-        for(int i = 1; i < capacity; i++) {
-            if(array[i-1] > threshold)
+        for(int i = 0; i < capacity; i++) {
+            if(array[i] > threshold)
                 num++;
         }
+
         return num;
     }
 
