@@ -23,10 +23,10 @@ class Queue {
             return num;
 
         for(int i = 1; i < capacity; i++) {
-            if (array[i] - array[i-1] > threshold)
+            if(array[i-1] > threshold)
                 num++;
         }
-            return num;
+        return num;
     }
 
     Queue(int c, float th) {
@@ -46,8 +46,8 @@ class Queue {
 //
 //        // insert element at the rear
 //        else {
-            array[rear] = data;
-            rear++;
+        array[rear] = data;
+        rear++;
 //        }
         return;
     }
@@ -60,8 +60,8 @@ class Queue {
         if (isEmpty())
             return;
 
-        // shift all the elements from index 2 till rear
-        // to the right by one
+            // shift all the elements from index 2 till rear
+            // to the right by one
         else {
             for (int i = 0; i < rear - 1; i++) {
                 array[i] = array[i + 1];

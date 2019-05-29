@@ -72,7 +72,7 @@ public class FallActivity extends AppCompatActivity {
         mKalmanPrev = new Kalman(0.0f);
         mKalmanNext = new Kalman(0.0f);
         SVM = new String[20];
-        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 6.0f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
+        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 5.0f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
 
         // Real-time Line Chart
         mChart = (LineChart) findViewById(R.id.chart1);
@@ -155,7 +155,7 @@ public class FallActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
                     accel.setText("측정중");
-//                    updateStatus("Connected");
+                    updateStatus("Connected");
                     //startDetect();
                 }
                 break;
@@ -199,7 +199,7 @@ public class FallActivity extends AppCompatActivity {
     // 가속도 데이터 받아오기 및 그래프 그리기
     public static void updateAccel(final String str) {
         String[] data = str.split("\\s");
-//        int det = 0;
+        int det = 0;
 
         int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
         for(int i = 0; i < SVM.length; i++)                   // SVM[20]
@@ -230,15 +230,26 @@ public class FallActivity extends AppCompatActivity {
             plotData = false;
         }
 
-//        det = queue.getDiffNum();
-//
-//        if(det == 1){
-//            if(queue.getAbsSum() > 15.0f)
-//                updateStatus("낙상 의심");
-//            else
-//                updateStatus("오인 행동");
-//        } else
-//            updateStatus("비낙상");
+        det = queue.getDiffNum();
+
+        if(det == 1) {
+            updateStatus("낙상 의심");
+            Log.e(TAG, "낙상의심상황"+ String.valueOf(det));
+            Message message = detectHandler.obtainMessage();
+            Bundle bundle = new Bundle();
+            bundle.putInt("emergency", -1);
+            message.setData(bundle);
+            detectHandler.sendMessage(message);
+            detectThread.start();
+        }
+        else if(det ==0)
+            updateStatus("비낙상");
+        else if(det >=2) {
+            updateStatus("오인 행동");
+            Log.e(TAG, "오인 행동"+ String.valueOf(det));
+            det=0;
+        }
+        det=0;
     }
 
     // LineChart startDetect()
@@ -334,7 +345,6 @@ public class FallActivity extends AppCompatActivity {
                     }*/
 
                 }
-
                 Message message = detectHandler.obtainMessage();
                 Bundle bundle = new Bundle();
                 bundle.putInt("emergency", -1);
@@ -373,7 +383,7 @@ public class FallActivity extends AppCompatActivity {
 
             vibrator.vibrate(vibe_pattern, -1);
 
-            try {
+            /*try {
                 Thread.sleep(10000);
 
                 String str = getIntent().getStringExtra("phoneNum");
@@ -383,7 +393,7 @@ public class FallActivity extends AppCompatActivity {
                 startActivity(intent);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
         }
     }
 
@@ -415,13 +425,13 @@ public class FallActivity extends AppCompatActivity {
             }
         });
 
-        emergencyDialog.setNegativeButton("취소(앱 종료)", new DialogInterface.OnClickListener() {
+        emergencyDialog.setNegativeButton("취소", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // 앱 종료
-                moveTaskToBack(true);
-                finish();
-                android.os.Process.killProcess(android.os.Process.myPid());
+                //moveTaskToBack(true);
+                //finish();
+                //android.os.Process.killProcess(android.os.Process.myPid());
             }
         });
 
