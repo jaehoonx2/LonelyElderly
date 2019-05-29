@@ -103,7 +103,7 @@ class Queue {
         }
 
         for(int i = 0; i < capacity; i++)
-            sum += array[i];
+            sum += Math.abs(array[i]);
 
         return sum;
     }
