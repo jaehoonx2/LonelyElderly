@@ -14,16 +14,11 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
-import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
@@ -57,7 +52,7 @@ public class HRMActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hrm);
         statusText = (TextView) findViewById(R.id.statusText);
         heartBPM = (TextView) findViewById(R.id.heartBPM);
-        SVM = new String[10];
+        SVM = new String[20];
 
         // Bind service
         mIsBound = bindService(new Intent(HRMActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -113,7 +108,7 @@ public class HRMActivity extends AppCompatActivity {
         // Clean up connections
         if (mIsBound == true && mConnectionService != null) {
             if (mConnectionService.closeConnection() == false) {
-                updateStatus("Disconnected");
+//                updateStatus("Disconnected");
             }
         }
         // Un-bind service
@@ -127,14 +122,14 @@ public class HRMActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             mConnectionService = ((ConnectionService.LocalBinder) service).getService();
-            updateStatus("onServiceConnected");
+//            updateStatus("onServiceConnected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
             mConnectionService = null;
             mIsBound = false;
-            updateStatus("onServiceDisconnected");
+//            updateStatus("onServiceDisconnected");
         }
     };
 
@@ -157,7 +152,7 @@ public class HRMActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
                         start = end = 0;
-                        updateStatus("Disconnected");
+//                        updateStatus("Disconnected");
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                     }
                 }
@@ -179,22 +174,6 @@ public class HRMActivity extends AppCompatActivity {
         }
     }
 
-    /*
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        uri = intent.getParcelableExtra("uri");
-
-        뒤로 가기 버튼 누른 후, 연락처를 변경하고 들어왔을 때
-        액티비티가 살아있다면 변경된 연락처를 받아오는 함수.
-        (현재 코드는 뒤로 가기를 누르면 액티비티 소멸)
-        문제점 : 여기서 가는 액티비티는 MainActivity 와 전화화면
-        전화화면의 경우 전달하는 intent 가 없으므로 에러가 날 것이다.
-        그래서 지금은 액티비티를 소멸시키는 방법을 사용
-        (Main 으로 돌아갈 경우만 소멸, 전화화면 X)
-    }
-    */
-
     // 모니터링 상태 표시
     public static void updateStatus(final String str) {
         statusText.setText(str);
@@ -203,8 +182,9 @@ public class HRMActivity extends AppCompatActivity {
     // 심박수 그래프 그리기 & 수치 나타내기
     public static void updateHeartBPM(final String str) {
         end = System.currentTimeMillis();
-        if(end - start < 10000) {
-            heartBPM.setText("측정 대기중");
+        if(end - start < 5000) {
+            updateStatus("밴드를 착용해주세요");
+            heartBPM.setText("수신 대기중");
             return;
         }
 
@@ -230,7 +210,6 @@ public class HRMActivity extends AppCompatActivity {
                                     addEntry(Integer.parseInt(data[0]));
                                     break;
                                 }
-
                                 if (checkMove()) {                      // 센서 에러 의심 - bpm - 0 이지만 움직임 감지
                                     isHeartAttack = false;
 
@@ -247,7 +226,6 @@ public class HRMActivity extends AppCompatActivity {
                                     if (detectThread == null)
                                         startDetect();
                                 }
-
                                 break;
                           }
                 default : {
@@ -343,6 +321,7 @@ public class HRMActivity extends AppCompatActivity {
                 // 0 : infinity, -1 : only once
                 // 10초 간 진동-off 시작
                 makeEmergencyDialog();
+
                 vibrator.vibrate(vibe_pattern, -1);
 
                 try {
@@ -373,7 +352,7 @@ public class HRMActivity extends AppCompatActivity {
 
         emergencyDialog = new AlertDialog.Builder(this);
         emergencyDialog.setTitle("긴급");
-        emergencyDialog.setMessage("심정지 감지 (무반응 시 10초 후 자동연락)");
+        emergencyDialog.setMessage("심정지 감지");
 
         emergencyDialog.setPositiveButton("연락", new DialogInterface.OnClickListener() {
             @Override

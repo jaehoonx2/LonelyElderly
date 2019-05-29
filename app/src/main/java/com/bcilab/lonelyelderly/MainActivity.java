@@ -97,14 +97,14 @@ public class MainActivity extends AppCompatActivity {
             default :
         }
 
-        if(resultCode == RESULT_OK){
-            // Normal response from Activities
-            if(requestCode == REQUEST_CODE_HRM)
-                Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
-            else if (requestCode == REQUEST_CODE_INFO)
-                Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
-            else if(requestCode == REQUEST_CODE_FALL)
-                Toast.makeText(getApplicationContext(), "return from FallActivity", Toast.LENGTH_SHORT).show();
-        }
+//        if(resultCode == RESULT_OK){
+//            // Normal response from Activities
+//            if(requestCode == REQUEST_CODE_HRM)
+//                Toast.makeText(getApplicationContext(), "return from HRMActivity", Toast.LENGTH_SHORT).show();
+//            else if (requestCode == REQUEST_CODE_INFO)
+//                Toast.makeText(getApplicationContext(), "return from InfoActivity", Toast.LENGTH_SHORT).show();
+//            else if(requestCode == REQUEST_CODE_FALL)
+//                Toast.makeText(getApplicationContext(), "return from FallActivity", Toast.LENGTH_SHORT).show();
+//        }
     }
 }

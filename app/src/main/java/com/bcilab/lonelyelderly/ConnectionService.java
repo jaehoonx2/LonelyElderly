@@ -63,10 +63,10 @@ public class ConnectionService extends SAAgent {
                 requestServiceConnection(peerAgent);
         } else if (result == SAAgent.FINDPEER_DEVICE_NOT_CONNECTED) {
             Toast.makeText(getApplicationContext(), "FINDPEER_DEVICE_NOT_CONNECTED", Toast.LENGTH_LONG).show();
-            updateStatus("Disconnected");
+//            updateStatus("Disconnected");
         } else if (result == SAAgent.FINDPEER_SERVICE_NOT_FOUND) {
             Toast.makeText(getApplicationContext(), "FINDPEER_SERVICE_NOT_FOUND", Toast.LENGTH_LONG).show();
-            updateStatus("Disconnected");
+//            updateStatus("Disconnected");
         } else {
             Toast.makeText(getApplicationContext(), R.string.NoPeersFound, Toast.LENGTH_LONG).show();
         }
@@ -83,9 +83,9 @@ public class ConnectionService extends SAAgent {
     protected void onServiceConnectionResponse(SAPeerAgent peerAgent, SASocket socket, int result) {
         if (result == SAAgent.CONNECTION_SUCCESS) {
             this.mConnectionHandler = (ServiceConnection) socket;
-            updateStatus("Connected");
+//            updateStatus("Connected");
         } else if (result == SAAgent.CONNECTION_ALREADY_EXIST) {
-            updateStatus("Connected");
+//            updateStatus("Connected");
             Toast.makeText(getBaseContext(), "CONNECTION_ALREADY_EXIST", Toast.LENGTH_LONG).show();
         } else if (result == SAAgent.CONNECTION_DUPLICATE_REQUEST) {
             Toast.makeText(getBaseContext(), "CONNECTION_DUPLICATE_REQUEST", Toast.LENGTH_LONG).show();
@@ -132,11 +132,13 @@ public class ConnectionService extends SAAgent {
 
             updateHeartBPM(message);
             updateAcc(message);
+
+            Log.e(TAG, "onReceive: data arrived");
         }
 
         @Override
         protected void onServiceConnectionLost(int reason) {
-            updateStatus("Disconnected");
+//            updateStatus("Disconnected");
             closeConnection();
         }
     }
@@ -183,16 +185,17 @@ public class ConnectionService extends SAAgent {
         return true;
     }
 
-    private void updateStatus(final String str) {
-        statusHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    HRMActivity.updateStatus(str);
-                } catch (Exception e) {}
-            }
-        });
-    }
+//    private void updateStatus(final String str) {
+//        statusHandler.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                try{
+//                    HRMActivity.updateStatus(str);
+//                    FallActivity.updateStatus(str);
+//                } catch (Exception e) {}
+//            }
+//        });
+//    }
 
     private void updateAcc(final String data) {
         accHandler.post(new Runnable() {

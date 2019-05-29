@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,13 +44,15 @@ public class FallActivity extends AppCompatActivity {
     private Thread graphThread;
     private static boolean plotData = true;
 
+    private static String[] SVM;
     private static Kalman mKalmanPrev;      // Kalman filter t value
     private static Kalman mKalmanNext;      // Karlam filter t+1 value
     private static float mPrev, mNext;      // Variable to save previous Kalman filter value
 
+    public static Queue queue;
     private static DetectHandler detectHandler;
     private static Thread detectThread;
-    public static Queue queue;
+
 
     Vibrator vibrator;
 
@@ -59,7 +62,6 @@ public class FallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fall);
         statusText = (TextView) findViewById(R.id.statusText);
         accel = (TextView) findViewById(R.id.accel);
-        queue = new com.bcilab.lonelyelderly.Queue(20);
 
         // Bind service
         mIsBound = bindService(new Intent(FallActivity.this, ConnectionService.class), mConnection, Context.BIND_AUTO_CREATE);
@@ -69,6 +71,8 @@ public class FallActivity extends AppCompatActivity {
         // Kalman Filter Initialize
         mKalmanPrev = new Kalman(0.0f);
         mKalmanNext = new Kalman(0.0f);
+        SVM = new String[20];
+        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 6.0f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
 
         // Real-time Line Chart
         mChart = (LineChart) findViewById(R.id.chart1);
@@ -120,7 +124,7 @@ public class FallActivity extends AppCompatActivity {
         // Clean up connections
         if (mIsBound == true && mConnectionService != null) {
             if (mConnectionService.closeConnection() == false) {
-                updateStatus("Disconnected");
+//                updateStatus("Disconnected");
             }
         }
         // Un-bind service
@@ -134,14 +138,14 @@ public class FallActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             mConnectionService = ((ConnectionService.LocalBinder) service).getService();
-            updateStatus("onServiceConnected");
+//            updateStatus("onServiceConnected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
             mConnectionService = null;
             mIsBound = false;
-            updateStatus("onServiceDisconnected");
+//            updateStatus("onServiceDisconnected");
         }
     };
 
@@ -151,8 +155,8 @@ public class FallActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
                     accel.setText("측정중");
-                    updateStatus("Connected");
-                    startDetect();
+//                    updateStatus("Connected");
+                    //startDetect();
                 }
                 break;
             }
@@ -165,10 +169,9 @@ public class FallActivity extends AppCompatActivity {
 
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
-                        updateStatus("Disconnected");
+//                        updateStatus("Disconnected");
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                         accel.setText("미측정");
-                        updateStatus("Disconnected");
                     }
                 }
                 break;
@@ -195,18 +198,19 @@ public class FallActivity extends AppCompatActivity {
 
     // 가속도 데이터 받아오기 및 그래프 그리기
     public static void updateAccel(final String str) {
-        final String[] SVM = str.split("\\s");
+        String[] data = str.split("\\s");
+//        int det = 0;
+
+        int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
+        for(int i = 0; i < SVM.length; i++)                   // SVM[20]
+            SVM[i] = data[i+1];
 
         float Ivalue;                                      // next - prev
         float prev = 0.0f;                                 // variable to apply Kalman filter
         float next = 0.0f;
 
         if(plotData){
-            for(int i = 1; i < 10; i++) {
-//                int[] timestamp = new int[9];
-//                float[] Ivalue = new float[9];             // next - prev
-//                int original = Integer.parseInt(SVM[11]);
-
+            for(int i = 0; i < SVM.length - 1; i++) {
                 prev = (float) mKalmanPrev.update(Float.parseFloat(SVM[i]));
                 next = (float) mKalmanNext.update(Float.parseFloat(SVM[i+1]));
                 Ivalue = next - prev;
@@ -217,19 +221,24 @@ public class FallActivity extends AppCompatActivity {
                 } else
                     queue.Enqueue(Ivalue);
 
-//                if(i == 1)                                  // 처음으로 받은 데이터의 시간
-//                    saveFile(Ivalue[i], original);
-//                else {                                      // 처음 이후 데이터는 시간 증가시키는 과정 추가
-//                    timestamp[i] = original + (49*(i-1));
-//                    saveFile(Ivalue[i], timestamp[i]);
-//                }
-
                 addEntry(Ivalue, 0);
+                saveFile(Ivalue, timestamp + (49*i));
+
                 mPrev = prev;
                 mNext = next;
             }
             plotData = false;
         }
+
+//        det = queue.getDiffNum();
+//
+//        if(det == 1){
+//            if(queue.getAbsSum() > 15.0f)
+//                updateStatus("낙상 의심");
+//            else
+//                updateStatus("오인 행동");
+//        } else
+//            updateStatus("비낙상");
     }
 
     // LineChart startDetect()
@@ -243,52 +252,87 @@ public class FallActivity extends AppCompatActivity {
         detectThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                double th = 15.0f;      // 임계값
-                int detection = 0;      // 임계값 초과값에 대한 감지 횟수 ex. 5회를 넘어서면 격한 행동
-                boolean monitoring = true;
-                long start = 0;
+                final double th = 6.0f;       // 임계값
+                int detection = 0;            // 임계값 초과 감지 횟수
+
+                boolean monitoring = true;    // default : true, 낙상 감지시 : false (모니터링을 해제하고 연락기능으로 들어가므로)
+
+                long start = 0;               // 최초 감지 시 타임스탬프
                 long end;
 
                 while(monitoring) {
+
+
+                    /*
                     // 큐가 꽉 안찼으면 찰 때까지 대기함
                     while (!queue.isFull()) {
                         try {
-                            Thread.sleep(50);
+                            Thread.sleep(1000);                 // 밴드와 스마트폰 간 수신 간격은 약 1100ms
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
 
+
                     // 임계점 넘어가면 detection++
                     if (queue.getAbsSum() > th) {
                         detection++;
-                        // 최초 감지면 타임스탬프 마크
-                        if (detection == 0)
-                            start = System.currentTimeMillis();
 
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        queue.setEmpty();
+
+                        // 최초 감지면 타임스탬프 마크
+                        if (detection == 1)
+                            start = System.currentTimeMillis();
+//                        try {
+//                            Thread.sleep(1000);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
                     }
 
                     // 타임스탬프가 존재하면 경과 시간 확인
                     if(start != 0) {
                         end = System.currentTimeMillis();
-                        if (end - start < 5000)             // 5초 미만이면 패스
+
+                        if (end - start < 10000)
                             continue;
-                        else if (detection < 5) {           // 큰 움직임이 5회 미만 감지 - 낙상
+
+                        if (detection > 3){
+                            // detection 초기화
+                            // start 초기화
+                            updateStatus("격렬한 활동");
+                            detection = 0;
+                            start = 0;
+                        } else {
                             // 낙상 의심
                             updateStatus("낙상 의심");
                             monitoring = false;
-                        } else {                            // 5회 이상 감지 - 걷기 혹은 달리기 등의 행동
-                            // detection 초기화
-                            // start 초기화
-                            detection = 0;
-                            start = 0;
                         }
                     }
+*/
+                    /*int a=0;
+                    end = System.currentTimeMillis();
+                    if(start != 0) {
+                        if (end - start < 10000) {
+                            if (detection == 1 || detection == 2) {
+                                a = 2;
+                            } else if (detection == 3) {
+                                a = 3;
+                            }
+                        }
+                    }
+
+                    if(end- start >=1000 && a ==2){
+                        // 낙상 의심
+                        updateStatus("낙상 의심");
+                        monitoring = false;
+                    }
+                    else if(end- start >=1000 && a ==3){
+                        updateStatus("격렬한 활동");
+                        detection = 0;
+                        start = 0;
+                    }*/
+
                 }
 
                 Message message = detectHandler.obtainMessage();
@@ -326,6 +370,7 @@ public class FallActivity extends AppCompatActivity {
             // 0 : infinity, -1 : only once
             // 10초 간 진동-off 시작
             makeEmergencyDialog();
+
             vibrator.vibrate(vibe_pattern, -1);
 
             try {
@@ -385,7 +430,7 @@ public class FallActivity extends AppCompatActivity {
         return emergencyDialog.show();
     }
 
-    public static void saveFile(float filteredX, int accel_data){
+    public static void saveFile(float Ivalue, int timestamp){
         String state = Environment.getExternalStorageState();   // 외부저장소(SDcard)의 상태 얻어오기
         File path;                                              // 저장 데이터가 존재하는 디렉토리경로
         File file;                                              // 파일명까지 포함한 경로
@@ -394,12 +439,12 @@ public class FallActivity extends AppCompatActivity {
             return;
         }
 
-        path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        file= new File(path, "BandData.txt");            // 파일명까지 포함함 경로의 File 객체 생성
+        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        file = new File(path, "BandData.txt");            // 파일명까지 포함함 경로의 File 객체 생성
         try {                                                  // 데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
-            FileWriter wr= new FileWriter(file,true);  // 두번째 파라미터 true: 기존파일에 내용 이어쓰기
-            PrintWriter writer= new PrintWriter(wr);
-            writer.println(filteredX+ " " + accel_data);
+            FileWriter wr = new FileWriter(file,true);  // 두번째 파라미터 true: 기존파일에 내용 이어쓰기
+            PrintWriter writer = new PrintWriter(wr);
+            writer.println(Ivalue + " " + timestamp);
             writer.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
