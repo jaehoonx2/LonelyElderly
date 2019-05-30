@@ -47,7 +47,7 @@ public class FallActivity extends AppCompatActivity {
     private static String[] SVM;
     private static Kalman mKalmanPrev;      // Kalman filter t value
     private static Kalman mKalmanNext;      // Karlam filter t+1 value
-//    private static float mPrev, mNext;    // Variable to save previous Kalman filter value
+    //private static float mPrev, mNext;    // Variable to save previous Kalman filter value
 
     public static Queue queue;
     private static DetectHandler detectHandler;
@@ -128,7 +128,7 @@ public class FallActivity extends AppCompatActivity {
         // Clean up connections
         if (mIsBound == true && mConnectionService != null) {
             if (mConnectionService.closeConnection() == false) {
-//                updateStatus("Disconnected");
+                //updateStatus("Disconnected");
             }
         }
         // Un-bind service
@@ -142,14 +142,14 @@ public class FallActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             mConnectionService = ((ConnectionService.LocalBinder) service).getService();
-//            updateStatus("onServiceConnected");
+            //updateStatus("onServiceConnected");
         }
 
         @Override
         public void onServiceDisconnected(ComponentName className) {
             mConnectionService = null;
             mIsBound = false;
-//            updateStatus("onServiceDisconnected");
+            //updateStatus("onServiceDisconnected");
         }
     };
 
@@ -159,7 +159,7 @@ public class FallActivity extends AppCompatActivity {
                 if (mIsBound == true && mConnectionService != null) {
                     mConnectionService.findPeers();
                     accel.setText("측정중");
-//                    updateStatus("Connected");
+                    //updateStatus("Connected");
                 }
                 break;
             }
@@ -172,7 +172,7 @@ public class FallActivity extends AppCompatActivity {
 
                 if (mIsBound == true && mConnectionService != null) {
                     if (mConnectionService.closeConnection() == false) {
-//                        updateStatus("Disconnected");
+                        //updateStatus("Disconnected");
                         Toast.makeText(getApplicationContext(), R.string.ConnectionAlreadyDisconnected, Toast.LENGTH_LONG).show();
                         accel.setText("미측정");
                     }
@@ -203,7 +203,7 @@ public class FallActivity extends AppCompatActivity {
     public static void updateAccel(final String str) {
         float Ivalue, prev, next;                             // variable to apply Kalman filter
         String[] data = str.split("\\s");
-//        int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
+        //int timestamp = Integer.parseInt(data[21]);         // timestamp - for saveFile
 
         for(int i = 0; i < SVM.length; i++)                   // SVM[20]
             SVM[i] = data[i+1];
@@ -221,53 +221,44 @@ public class FallActivity extends AppCompatActivity {
                     queue.Enqueue(Ivalue);
 
                 addEntry(Ivalue, 0);
-//                saveFile(Ivalue, timestamp + (49*i));
+                //saveFile(Ivalue, timestamp + (49*i));
 
-//                mPrev = prev;
-//                mNext = next;
+                //mPrev = prev;
+                //mNext = next;
             }
             plotData = false;
         }
 
-        // det란? 한 큐 안에서 th를 넘는 횟수
-        int det = queue.getNumOverTH();
+        int det = queue.getNumOverTH(); // 한 큐 안에서 th를 넘는 횟수
 
         switch(det){
             case 0 :    // 한번도 th 초과 하지 않은 경우
-                        updateStatus("평상시");
-                        break;
-            case 1 :
-            //case 2 :    // 한두번 정도 초과함 - 의심 여지 있음
-                        updateStatus("낙상 의심");
-                        Log.e(TAG, "낙상 의심, detNum :"+ String.valueOf(det));
+                updateStatus("평상시");
+                break;
+            case 1 :     // 한번 초과한 경우 의심 여지 있음
+                updateStatus("낙상 의심");
+                Log.e(TAG, "낙상 의심, detNum :"+ String.valueOf(det));
 
-                        if(isFirstDetect){
-                            isFirstDetect = false;
-                            start = System.currentTimeMillis();
-                        }
-                        global_det++;
-
-                        break;
-            default :   // 다수 검출 - 오인 행동 가능성
-                        updateStatus("오인 행동");
-                        Log.e(TAG, "오인 행동, detNum :" + String.valueOf(det));
+                if(isFirstDetect){
+                    isFirstDetect = false;
+                    start = System.currentTimeMillis();
+                }
+                global_det++;
+                break;
+            default :   // 다수 검출의 경우 오인 행동 가능성
+                updateStatus("오인 행동");
+                Log.e(TAG, "오인 행동, detNum :" + String.valueOf(det));
         }
 
         // 낙상 의심 행동일 경우
         if(start != 0) {
             end = System.currentTimeMillis();
 
-            // 6초 경과하지 않았으면 낙상 이후의...
+            // 낙상 의심 이후에 약 6초 내의 경우
             if (end - start < 5600) {
-                // 미세한 움직임의 유무 체크
-//                if(queue.getNumUnderST(0.1f) > 9)
-//                    negative++;
-//                if(queue.getAbsAverage() < 1.1)
-//                    negative++;
-                // 격한 움직임의 유무 체크
+                // 일상적인 움직임이 10번 이상 관찰되면, 오인 행동일 가능성
                 if(queue.getNumOverST(1.0f) > 9)
                     positive++;
-
                 return;
             }
             // 6초가 경과했으면 최종 낙상 판단 매커니즘에 돌입
@@ -275,9 +266,9 @@ public class FallActivity extends AppCompatActivity {
                 start = 0;
 
                 if (global_det > 3)
-                    updateStatus("최종 오인 행동 global det");
+                    updateStatus("최종 오인 행동");
                 else if(positive != 0){
-                    updateStatus("최종 오인 행동 positive");
+                    updateStatus("최종 오인 행동");
                 } else {
                     updateStatus("최종 낙상 상황");
                     startDetect();
@@ -291,11 +282,10 @@ public class FallActivity extends AppCompatActivity {
 
     // LineChart startDetect()
     private static void startDetect(){
-
-//        if(detectThread != null){
-//            // detectThread.interrupt();
-//            return;
-//        }
+        /*if(detectThread != null){
+            // detectThread.interrupt();
+            return;
+        }*/
 
         detectThread = new Thread(new Runnable() {
             @Override
@@ -312,7 +302,6 @@ public class FallActivity extends AppCompatActivity {
     }
 
     class DetectHandler extends Handler {
-
         /* millisecond
          * vibe_pattern[odd] : waiting time
          * vibe_pattern[even] : vibrating time
@@ -338,17 +327,17 @@ public class FallActivity extends AppCompatActivity {
 
             vibrator.vibrate(vibe_pattern, -1);
 
-//            try {
-//                Thread.sleep(10000);
-//
-//                String str = getIntent().getStringExtra("phoneNum");
-//                final Uri uri = Uri.parse("tel:" + str);
-//                Intent intent = new Intent(Intent.ACTION_CALL);
-//                intent.setData(uri);
-//                startActivity(intent);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
+            /*try {
+                Thread.sleep(10000);
+
+                String str = getIntent().getStringExtra("phoneNum");
+                final Uri uri = Uri.parse("tel:" + str);
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(uri);
+                startActivity(intent);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }*/
         }
     }
 
@@ -481,8 +470,7 @@ public class FallActivity extends AppCompatActivity {
         set.setDrawCircles(false);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
         set.setMode(LineDataSet.Mode.LINEAR);
-//        set.setCubicIntensity(0.2f);
-
+//      set.setCubicIntensity(0.2f);
         return set;
     }
 }

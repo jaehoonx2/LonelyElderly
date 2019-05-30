@@ -6,16 +6,6 @@ class Queue {
     private float threshold;
     private float array[];
 
-    public int getRear() {
-        return rear;
-    }
-
-    public int getCapacity() {
-        return capacity;
-    }
-
-    public synchronized void setEmpty() { front = rear = 0; }
-
     public int getNumOverTH(){
         int num = 0;
 
@@ -24,20 +14,6 @@ class Queue {
 
         for(int i = 0; i < capacity; i++) {
             if(array[i] > threshold)
-                num++;
-        }
-
-        return num;
-    }
-
-    public int getNumUnderST(float st){
-        int num = 0;
-
-        if(isEmpty())
-            return num;
-
-        for(int i = 0; i < capacity; i++) {
-            if(array[i] < st)
                 num++;
         }
 
@@ -69,15 +45,8 @@ class Queue {
     // at the rear of the array
     synchronized void Enqueue(float data)
     {
-//        // check array is full or not
-//        if (isFull())
-//            return;
-//
-//        // insert element at the rear
-//        else {
         array[rear] = data;
         rear++;
-//        }
         return;
     }
 
@@ -121,31 +90,4 @@ class Queue {
         else
             return false;
     }
-
-    public float getAbsSum(){
-        float sum = 0.0f;
-
-        if (isEmpty()) {            // if array is empty
-            return 0;
-        } else if(!isFull()) {   // check array is not full
-            return -1;
-        }
-
-        for(int i = 0; i < capacity; i++)
-            sum += Math.abs(array[i]);
-
-        return sum;
-    }
-
-    public float getAbsAverage(){
-        float avg = getAbsSum();
-
-        if(avg == 0 || avg == -1)
-            return -1;                   // wrong result
-
-        avg = avg / capacity;
-
-        return avg;
-    }
 }
-
