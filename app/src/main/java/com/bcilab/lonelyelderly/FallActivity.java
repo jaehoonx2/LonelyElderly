@@ -76,7 +76,7 @@ public class FallActivity extends AppCompatActivity {
         mKalmanPrev = new Kalman(0.0f);
         mKalmanNext = new Kalman(0.0f);
         SVM = new String[20];
-        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 4.3f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
+        queue = new com.bcilab.lonelyelderly.Queue(SVM.length, 4.5f);   // LENGTH : SVM.length, TRESHOLD : Ihigh - Ilow (estimated val)
 
         // Real-time Line Chart
         mChart = (LineChart) findViewById(R.id.chart1);
@@ -260,10 +260,12 @@ public class FallActivity extends AppCompatActivity {
             // 6초 경과하지 않았으면 낙상 이후의...
             if (end - start < 5600) {
                 // 미세한 움직임의 유무 체크
-                if(queue.getAbsAverage() < 1.1)
-                    negative++;
+//                if(queue.getNumUnderST(0.1f) > 9)
+//                    negative++;
+//                if(queue.getAbsAverage() < 1.1)
+//                    negative++;
                 // 격한 움직임의 유무 체크
-                else if(queue.getAbsAverage() > 1.3)
+                if(queue.getNumOverST(1.0f) > 9)
                     positive++;
 
                 return;
@@ -272,20 +274,17 @@ public class FallActivity extends AppCompatActivity {
             else {
                 start = 0;
 
-                if (global_det > 2)
-                    updateStatus("최종 오인 행동");
-                else if(negative == 0){ // 미세한 움직임 있다는 얘기?
-                    updateStatus("최종 오인 행동");
-                } else if(positive != 0){
-                    updateStatus("최종 오인 행동");
+                if (global_det > 3)
+                    updateStatus("최종 오인 행동 global det");
+                else if(positive != 0){
+                    updateStatus("최종 오인 행동 positive");
                 } else {
                     updateStatus("최종 낙상 상황");
                     startDetect();
                 }
 
                 isFirstDetect = true;
-                global_det = 0;
-                negative = 0;
+                global_det = positive = negative = 0;
             }
         }
     }
@@ -339,17 +338,17 @@ public class FallActivity extends AppCompatActivity {
 
             vibrator.vibrate(vibe_pattern, -1);
 
-            try {
-                Thread.sleep(10000);
-
-                String str = getIntent().getStringExtra("phoneNum");
-                final Uri uri = Uri.parse("tel:" + str);
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(uri);
-                startActivity(intent);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//            try {
+//                Thread.sleep(10000);
+//
+//                String str = getIntent().getStringExtra("phoneNum");
+//                final Uri uri = Uri.parse("tel:" + str);
+//                Intent intent = new Intent(Intent.ACTION_CALL);
+//                intent.setData(uri);
+//                startActivity(intent);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 

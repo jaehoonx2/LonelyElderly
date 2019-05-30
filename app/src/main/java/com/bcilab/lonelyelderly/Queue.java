@@ -30,6 +30,34 @@ class Queue {
         return num;
     }
 
+    public int getNumUnderST(float st){
+        int num = 0;
+
+        if(isEmpty())
+            return num;
+
+        for(int i = 0; i < capacity; i++) {
+            if(array[i] < st)
+                num++;
+        }
+
+        return num;
+    }
+
+    public int getNumOverST(float st){
+        int num = 0;
+
+        if(isEmpty())
+            return num;
+
+        for(int i = 0; i < capacity; i++) {
+            if(array[i] > st)
+                num++;
+        }
+
+        return num;
+    }
+
     Queue(int c, float th) {
         front = rear = 0;
         capacity = c;
