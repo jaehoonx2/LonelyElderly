@@ -205,11 +205,12 @@ public class HRMActivity extends AppCompatActivity {
                                 break;
                            }
                 case "0" : {
-                                if(isHeartAttack){
-                                    heartBPM.setText(data[0]);
-                                    addEntry(Integer.parseInt(data[0]));
-                                    break;
-                                }
+//                                if(isHeartAttack){
+//                                    heartBPM.setText(data[0]);
+//                                    addEntry(Integer.parseInt(data[0]));
+//                                    break;
+//                                }
+
                                 if (checkMove()) {                      // 센서 에러 의심 - bpm - 0 이지만 움직임 감지
                                     isHeartAttack = false;
 
@@ -248,7 +249,7 @@ public class HRMActivity extends AppCompatActivity {
             isum += Math.abs(Float.parseFloat(SVM[i + 1]) - Float.parseFloat(SVM[i]));
         float iavg = isum / (SVM.length - 1);
 
-        if(iavg > 0.04)
+        if(iavg > 0.05)
             return true;
         else
             return false;
@@ -303,9 +304,7 @@ public class HRMActivity extends AppCompatActivity {
          * vibe_pattern[odd] : waiting time
          * vibe_pattern[even] : vibrating time
          */
-        long[] vibe_pattern = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-                100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
+        long[] vibe_pattern = { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 };
 
         // 받은 메시지를 통해 경과시간 혹은 알림 상자 띄우기
         @Override
@@ -318,23 +317,23 @@ public class HRMActivity extends AppCompatActivity {
             if(elapsed != -1)
                 statusText.setText("심정지 상황 의심");
 
-                // 0 : infinity, -1 : only once
-                // 10초 간 진동-off 시작
-                makeEmergencyDialog();
+            // 0 : infinity, -1 : only once
+            // 10초 간 진동-off 시작
+            makeEmergencyDialog();
+            vibrator.vibrate(vibe_pattern, -1);
 
-                vibrator.vibrate(vibe_pattern, -1);
+            long mstart, mend;
+            mstart = System.currentTimeMillis();
+            do{
+                mend = System.currentTimeMillis();
+            } while(mend - mstart < 10000);
 
-                try {
-                    Thread.sleep(10000);
+            String str = getIntent().getStringExtra("phoneNum");
+            final Uri uri = Uri.parse("tel:" + str);
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(uri);
+            startActivity(intent);
 
-                    String str = getIntent().getStringExtra("phoneNum");
-                    final Uri uri = Uri.parse("tel:" + str);
-                    Intent intent = new Intent(Intent.ACTION_CALL);
-                    intent.setData(uri);
-                    startActivity(intent);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
         }
     }
 

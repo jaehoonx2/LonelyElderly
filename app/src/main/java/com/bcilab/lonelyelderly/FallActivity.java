@@ -395,7 +395,7 @@ public class FallActivity extends AppCompatActivity {
 
         path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         file = new File(path, "BandData.txt");            // 파일명까지 포함함 경로의 File 객체 생성
-        try {                                                  // 데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
+        try {                                                   // 데이터 추가가 가능한 파일 작성자(FileWriter 객체생성)
             FileWriter wr = new FileWriter(file,true);  // 두번째 파라미터 true: 기존파일에 내용 이어쓰기
             PrintWriter writer = new PrintWriter(wr);
             writer.println(Ivalue + " " + timestamp);
